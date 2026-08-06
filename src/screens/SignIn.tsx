@@ -23,8 +23,8 @@ export default function SignIn() {
       return;
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters');
       setLoading(false);
       return;
     }
@@ -37,7 +37,8 @@ export default function SignIn() {
       if (message.includes('not confirmed') || message.includes('Email not confirmed')) {
         setError('Please confirm your email before signing in.');
       } else {
-        setError(message);
+        // Generic error for invalid credentials to prevent email enumeration
+        setError('Invalid email or password.');
       }
     } finally {
       setLoading(false);

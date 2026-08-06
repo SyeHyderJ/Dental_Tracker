@@ -11,7 +11,7 @@ DentalTracker is a frontend application for tracking dental health records, appo
 - Database integration with Supabase (PostgreSQL) using Row Level Security (RLS)
 - Responsive UI with Tailwind CSS v4
 
-The app is in active development with core authentication and dashboard shell completed. Feature screens for detailed tooth tracking and appointment management are planned.
+The app is in active development with core authentication and dashboard shell completed. Feature screens for detailed tooth tracking and appointment management are built and tested.
 
 ## Tech Stack
 
@@ -24,27 +24,29 @@ The app is in active development with core authentication and dashboard shell co
 
 ## Current Capabilities
 
-��✅ **Welcome Screen** - App introduction with feature highlights and call-to-action buttons  
-��✅ **Account Creation** - Email/password signup with Supabase Auth  
-��✅ **Email Confirmation Flow** - 
+������✅ **Welcome Screen** - App introduction with feature highlights and call-to-action buttons  
+������✅ **Account Creation** - Email/password signup with Supabase Auth  
+������✅ **Email Confirmation Flow** - 
    - Check email screen showing sent confirmation
    - Resend confirmation email with 30-second cooldown to prevent abuse
    - Auth callback handler to process confirmation links from email
-��✅ **Sign In** - 
+������✅ **Sign In** - 
    - Email/password authentication
    - Clear error handling for invalid credentials and unconfirmed email
    - Redirect to resend confirmation email when needed
-��✅ **Protected Routes** - 
+������✅ **Protected Routes** - 
    - Dashboard route protected by authentication check
    - Unauthenticated users redirected to welcome screen
-��✅ **Session Persistence** - 
+������✅ **Session Persistence** - 
    - Auth state persisted across page refreshes via Supabase client
-��✅ **Sign Out** - 
+������✅ **Sign Out** - 
    - Secure sign out that clears session
-��✅ **Dashboard Shell** - 
+������✅ **Dashboard Shell** - 
    - Placeholder UI showing basic stats (Total Records, Last Visit, Streak, Next Checkup)
    - Currently shows zero/empty state until record-tracking UI is implemented
    - Real-time data fetching from Supabase `tooth_records` table with RLS enforcement
+������✅ **Tooth Chart** - Visual grid showing each tooth's status (healthy, cavity, filling, etc.) with ability to add records per tooth
+������✅ **Appointments & Reminders** - Schedule, view, and manage dental appointments with date/time selection and provider field
 
 ## Security Measures
 
@@ -105,7 +107,7 @@ Follow these steps to set up and run the DentalTracker project locally:
    - Open `.env` and fill in:
      - `VITE_SUPABASE_URL`: Your Supabase project URL
      - `VITE_SUPABASE_ANON_KEY`: Your Supabase project anon key
-   - �� ⚠��️ Never commit your `.env` file - it's ignored by Git for security
+   - ���� �� �� ⚠������️ Never commit your `.env` file - it's ignored by Git for security
 
 4. **Set up the database**
    - Log in to your [Supabase dashboard](https://supabase.com/dashboard)
@@ -123,13 +125,11 @@ Follow these steps to set up and run the DentalTracker project locally:
 
 ## Roadmap / Planned Features
 
-- �� 🦷 **Tooth-by-Tooth Chart** - Visual grid showing each tooth's status (healthy, cavity, filling, etc.)
-- �� 📅 **Appointments & Reminders** - Schedule, view, and get reminders for dental appointments
-- �� 📊 **Progress Reports** - Charts and graphs showing oral health trends over time
-- �� 🪥 **Daily Habit Tracking** - Log brushing, flossing, rinsing with streak counters
-- �� 📄 **Export/Import** - Export records as PDF/CSV and import historical data
-- � 🔔 **Notifications** - Push notifications for appointment reminders and recommended checkups
-- �� 💾 **Offline Support** - Service worker for basic offline functionality
+- ���� �� �� 📊 **Progress Reports** - Charts and graphs showing oral health trends over time
+- ���� �� �� 🪥 **Daily Habit Tracking** - Log brushing, flossing, rinsing with streak counters
+- ���� �� �� 📄 **Export/Import** - Export records as PDF/CSV and import historical data
+- ��� � � 🔔 **Notifications** - Push notifications for appointment reminders and recommended checkups
+- ���� �� �� 💾 **Offline Support** - Service worker for basic offline functionality
 
 ## Project Structure
 
@@ -142,11 +142,11 @@ src/
 │   └── supabase.ts     # Supabase client initialization
 ├── types/              # TypeScript type definitions
 ├── App.tsx             # Main application component with routing
-�└── main.tsx            # Entry point
+���└── main.tsx            # Entry point
 
 supabase/
 ├── migrations/         # Database migration scripts
-�└── ...                 # Other Supabase configuration files
+���└── ...                 # Other Supabase configuration files
 
 .public/                # Static assets (favicon, etc.)
 .index.html             # Main HTML entry point
