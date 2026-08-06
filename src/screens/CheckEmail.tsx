@@ -9,7 +9,7 @@ export default function CheckEmail() {
   const [email, setEmail] = useState<string>('');
   const [resendLoading, setResendLoading] = useState(false);
   const [resendMessage, setResendMessage] = useState<string>('');
-  const resendTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const resendTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Extract email from state on initial mount or when location.state changes
   useEffect(() => {

@@ -6,6 +6,8 @@ import CreateAccount from './screens/CreateAccount';
 import Dashboard from './screens/Dashboard';
 import CheckEmail from './screens/CheckEmail';
 import AuthCallback from './screens/AuthCallback';
+import ToothChart from './screens/ToothChart';
+import Appointments from './screens/Appointments';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
@@ -26,6 +28,22 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/tooth-chart"
+          element={
+            <ProtectedRoute>
+              <ToothChart />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/appointments"
+          element={
+            <ProtectedRoute>
+              <Appointments />
             </ProtectedRoute>
           }
         />
