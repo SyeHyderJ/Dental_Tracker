@@ -29,6 +29,13 @@
   - Uses anon/public key for client-side operations
   - Row Level Security prevents unauthorized data access
   - Automatic JWT handling for authenticated requests
+- **Edge Functions**:
+  - Appointment reminder function (`send-appointment-reminders`) 
+  - Only accepts POST requests (method validation prevents accidental GET triggers)
+  - Requires Bearer token (service role key) in Authorization header
+  - Service role key has elevated privileges (bypasses RLS) appropriate for backend operations
+  - No direct user exposure - triggered automatically via pg_cron or manual SQL execution
+  - Function logic validates input and handles errors gracefully
 - **Rate Limiting**: Handled by Supabase infrastructure
 - **Input Sanitization**: 
   - Client-side validation for basic requirements (email format, password length)
