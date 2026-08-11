@@ -48,6 +48,8 @@ async function sendReminderEmail(
 
   const resendEndpoint = "https://api.resend.com/emails"
   const resendPayload = {
+    // NOTE: Using Resend's sandbox sender (onboarding@resend.dev) which can only send to the registered email
+    // (jaffari2@illinois.edu) until a custom domain is verified. This is a known limitation for real users.
     from: "DentalTracker <onboarding@resend.dev>",
     to: [email],
     subject: "Upcoming Dental Appointment Reminder",

@@ -64,14 +64,14 @@ export default function Welcome() {
           <button
             type="button"
             onClick={() => navigate('/create-account')}
-            className="w-full flex items-center justify-center px-4 py-3 text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-md"
+            className="w-full flex items-center justify-center px-5 py-3.5 text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-md transition-colors duration-200"
           >
             Create Account
           </button>
           <button
             type="button"
             onClick={() => navigate('/sign-in')}
-            className="w-full flex items-center justify-center px-4 py-3 text-base font-medium text-indigo-600 bg-white border border-indigo-300 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:ring-offset-2 rounded-md"
+            className="w-full flex items-center justify-center px-5 py-3.5 text-base font-medium text-indigo-600 bg-white border border-indigo-300 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:ring-offset-2 rounded-md transition-colors duration-200"
           >
             Sign In
           </button>

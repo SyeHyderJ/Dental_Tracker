@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../lib/auth';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
+import BackButton from '../components/BackButton';
 
 export default function Appointments() {
   const { user, logout } = useAuth();
@@ -271,25 +272,44 @@ export default function Appointments() {
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Appointments
-            </h1>
-            <p className="mt-2 text-sm text-gray-500">
-              Track your dental appointments and checkups
-            </p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 space-y-4 sm:space-y-0 sm:space-x-3">
+          <div className="flex items-center gap-4">
+            <BackButton />
+            <div className="text-center sm:text-left">
+              <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+                Appointments
+              </h1>
+              <p className="mt-2 text-sm text-gray-500 sm:mt-0">
+                Track your dental appointments and checkups
+              </p>
+            </div>
           </div>
-          <div className="flex space-x-3">
+          <div className="flex flex-col sm:flex-row w-full sm:w-auto space-y-3 sm:space-y-0 sm:space-x-3">
             <button
               onClick={() => navigate('/tooth-chart')}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Tooth Chart
             </button>
             <button
+              onClick={() => {
+                // Open add form by setting a dummy selected appointment
+                setSelectedAppointment({} as any);
+                setIsEditMode(false);
+                setFormDate('');
+                setFormTime('');
+                setFormProvider('');
+                setFormNotes('');
+                setFormError(null);
+                setFormSuccess(false);
+              }}
+              className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Schedule Appointment
+            </button>
+            <button
               onClick={handleLogout}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Sign Out
             </button>
@@ -448,7 +468,7 @@ export default function Appointments() {
                     type="text"
                     value={formProvider}
                     onChange={e => setFormProvider(e.target.value)}
-                    className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    className="block w-full rounded-md border-0 px-4 py-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
                   />
                 </div>
 
@@ -461,7 +481,7 @@ export default function Appointments() {
                     type="date"
                     value={formDate}
                     onChange={handleDateChange}
-                    className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    className="block w-full rounded-md border-0 px-4 py-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
                   />
                 </div>
 
@@ -473,7 +493,7 @@ export default function Appointments() {
                     id="time"
                     value={formTime}
                     onChange={handleTimeChange}
-                    className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    className="block w-full rounded-md border-0 px-4 py-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
                   >
                     <option value="">Select time</option>
                     {timeOptions.map(option => (
@@ -494,7 +514,7 @@ export default function Appointments() {
                     onChange={handleNotesChange}
                     rows={3}
                     maxLength={500}
-                    className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    className="block w-full rounded-md border-0 px-4 py-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
                   />
                 </div>
 
@@ -514,7 +534,7 @@ export default function Appointments() {
                   <button
                     type="submit"
                     disabled={formLoading}
-                    className={`w-full flex items-center justify-center px-4 py-3 text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-md ${formLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`w-full flex items-center justify-center px-5 py-3.5 text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-md ${formLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {formLoading ? (
                       <>

@@ -77,7 +77,7 @@ export default function CheckEmail() {
           <button
             onClick={handleResend}
             disabled={resendLoading}
-            className={`w-full flex items-center justify-center px-4 py-3 text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-md ${resendLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`w-full flex items-center justify-center px-5 py-3.5 text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-md transition-colors duration-200 ${resendLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {resendLoading ? (
               <>
