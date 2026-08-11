@@ -101,12 +101,14 @@
 2. **Password Strength**: Basic length requirement only - could implement zxcvbn strength checking
 3. **Session Duration**: Uses Supabase defaults - may need customization for sensitive health data
 4. **Brute Force Protection**: Relies on Supabase rate limiting - should implement additional account lockout
+5. **Email Reminder Sandbox**: The appointment reminder system uses Resend's sandbox sender (onboarding@resend.dev), which can only send to the registered email address (jaffari2@illinois.edu) until a custom domain is verified. This prevents sending reminders to real users.
 
 ### Mitigation Strategies
 - Enable email verification in Supabase Auth settings
 - Consider implementing password strength validation using zxcvbn library
 - Monitor auth logs for suspicious activity
 - Consider implementing custom rate limiting for auth endpoints
+- Verify a custom domain with Resend and update the FROM address in the send-appointment-reminders function.
 
 ## Reporting Security Concerns
 
