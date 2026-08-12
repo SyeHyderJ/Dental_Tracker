@@ -110,31 +110,31 @@ export default function Dashboard() {
           <div className="flex space-x-3">
             <button
               onClick={() => navigate('/tooth-chart')}
-              className="px-4 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-md hover:bg-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              className="px-4 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-md hover:bg-muted hover:-translate-y-[var(--translate-y-0-5)] active:scale-[var(--scale-0-98)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-[var(--duration-200)] ease-[var(--ease-out)]"
             >
               Tooth Chart
             </button>
             <button
               onClick={() => navigate('/appointments')}
-              className="px-4 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-md hover:bg-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              className="px-4 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-md hover:bg-muted hover:-translate-y-[var(--translate-y-0-5)] active:scale-[var(--scale-0-98)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-[var(--duration-200)] ease-[var(--ease-out)]"
             >
               Appointments
             </button>
             <button
               onClick={() => navigate('/records')}
-              className="px-4 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-md hover:bg-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              className="px-4 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-md hover:bg-muted hover:-translate-y-[var(--translate-y-0-5)] active:scale-[var(--scale-0-98)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-[var(--duration-200)] ease-[var(--ease-out)]"
             >
               Records
             </button>
             <button
               onClick={() => navigate('/share-access')}
-              className="px-4 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-md hover:bg-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              className="px-4 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-md hover:bg-muted hover:-translate-y-[var(--translate-y-0-5)] active:scale-[var(--scale-0-98)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-[var(--duration-200)] ease-[var(--ease-out)]"
             >
               Share Access
             </button>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-md hover:bg-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              className="px-4 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-md hover:bg-muted hover:-translate-y-[var(--translate-y-0-5)] active:scale-[var(--scale-0-98)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-[var(--duration-200)] ease-[var(--ease-out)]"
             >
               Sign Out
             </button>
@@ -149,24 +149,24 @@ export default function Dashboard() {
 
         {/* Stats Overview */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-          <div className="bg-card rounded-lg shadow p-6">
+          <div className="bg-card rounded-lg shadow hover:-translate-y-[var(--translate-y-0-5)] active:scale-[var(--scale-0-98)] p-6 transition-all duration-[var(--duration-300)] ease-[var(--ease-out)]">
             <h3 className="text-lg font-medium text-foreground mb-2">Total Records</h3>
             <p className="text-3xl font-bold text-primary">{records.length}</p>
           </div>
 
-          <div className="bg-card rounded-lg shadow p-6">
+          <div className="bg-card rounded-lg shadow hover:-translate-y-[var(--translate-y-0-5)] active:scale-[var(--scale-0-98)] p-6 transition-all duration-[var(--duration-300)] ease-[var(--ease-out)]">
             <h3 className="text-lg font-medium text-foreground mb-2">Last Visit</h3>
             <p className="text-2xl font-bold text-accent">
               {records.length > 0 ? new Date(records[0].created_at).toLocaleDateString() : 'No records'}
             </p>
           </div>
 
-          <div className="bg-card rounded-lg shadow p-6">
+          <div className="bg-card rounded-lg shadow hover:-translate-y-[var(--translate-y-0-5)] active:scale-[var(--scale-0-98)] p-6 transition-all duration-[var(--duration-300)] ease-[var(--ease-out)]">
             <h3 className="text-lg font-medium text-foreground mb-2">Streak</h3>
             <p className="text-3xl font-bold text-secondary">0</p>
           </div>
 
-          <div className="bg-card rounded-lg shadow p-6">
+          <div className="bg-card rounded-lg shadow hover:-translate-y-[var(--translate-y-0-5)] active:scale-[var(--scale-0-98)] p-6 transition-all duration-[var(--duration-300)] ease-[var(--ease-out)]">
             <h3 className="text-lg font-medium text-foreground mb-2">Next Checkup</h3>
             <p className="text-2xl font-bold text-primary">TBD</p>
           </div>
@@ -185,7 +185,7 @@ export default function Dashboard() {
             ) : (
               <>
                 {records.map((record) => (
-                  <div key={record.id} className="bg-card rounded-lg shadow p-4 border border-border">
+                  <div key={record.id} className="bg-card rounded-lg shadow hover:-translate-y-[var(--translate-y-0-25)] active:scale-[var(--scale-0-99)] p-4 border border-border transition-all duration-[var(--duration-200)] ease-[var(--ease-out)]">
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-heading text-foreground mb-1">
@@ -224,7 +224,7 @@ export default function Dashboard() {
             Start logging your dental checkups, treatments, and daily oral hygiene habits to maintain a healthy smile.
           </p>
           {/* Placeholder button - would navigate to ToothChart or Records screen */}
-          <button className="px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+          <button className="px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 hover:-translate-y-0.5 active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-200 ease-out">
             Add First Record
           </button>
         </div>
