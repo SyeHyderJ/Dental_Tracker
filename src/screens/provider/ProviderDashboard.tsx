@@ -33,7 +33,7 @@ export default function ProviderDashboard() {
         try {
           const { data, error } = await supabase
             .from('appointments')
-            .select('*, patient_id, profiles!appointments_user_id_fkey(full_name)')
+            .select('*')
             .gte('appointment_date', new Date().toISOString().split('T')[0])
             .lt('appointment_date', new Date(Date.now() + 86400000).toISOString().split('T')[0])
             .order('appointment_date', { ascending: true });
@@ -41,7 +41,13 @@ export default function ProviderDashboard() {
           // Filter to only appointments for connected patients (RLS should already do this, but double-check)
           const connectedPatientIds = new Set(patients.map(p => p.patient_id));
           const filtered = data.filter((apt: any) => connectedPatientIds.has(apt.patient_id));
-          setTodaysAppointments(filtered);
+          // Attach patient_name for display
+          const patientMap = new Map(patients.map(p => [p.patient_id, p.patient_name]));
+          const appointmentsWithName = filtered.map(apt => ({
+            ...apt,
+            patient_name: patientMap.get(apt.patient_id) || 'Unknown Patient'
+          }));
+          setTodaysAppointments(appointmentsWithName);
         } catch (err: any) {
           setError(err.message);
         }
@@ -123,7 +129,7 @@ export default function ProviderDashboard() {
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="text-xl font-semibold text-gray-900">
-                        {apt.profiles?.full_name || 'Unknown Patient'}
+                        {apt.patient_name || 'Unknown Patient'}
                       </h3>
                       <p className="text-sm text-gray-500">
                         {new Date(apt.appointment_date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}

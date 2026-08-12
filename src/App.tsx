@@ -113,7 +113,7 @@ function App() {
         />
         {/* Provider section */}
         <Route
-          path="/provider"
+          path="/provider/*"
           element={
             <ProtectedProviderRoute>
               <Routes>
