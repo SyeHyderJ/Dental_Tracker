@@ -11,50 +11,66 @@ export default function ProviderDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [todaysAppointments, setTodaysAppointments] = useState<Array<any>>([]);
 
-  // Fetch provider's patients
+  // Fetch provider's patients and today's appointments
   useEffect(() => {
-    if (user) {
-      const fetchPatients = async () => {
-        try {
-          setLoading(true);
-          const { data, error } = await supabase.rpc('get_my_patients');
-          if (error) throw error;
-          setPatients(data || []);
-        } catch (err: any) {
-          setError(err.message);
-        } finally {
+    let ignore = false;
+
+    const fetchData = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Fetch patients
+        const { data: patientsData, error: patientsError } = await supabase.rpc('get_my_patients');
+        if (patientsError) throw patientsError;
+        if (ignore) return;
+        setPatients(patientsData || []);
+
+        // Fetch appointments
+        const { data: appointmentsData, error: appointmentsError } = await supabase
+          .from('appointments')
+          .select('*')
+          .gte('appointment_date', new Date().toISOString().split('T')[0])
+          .lt('appointment_date', new Date(Date.now() + 86400000).toISOString().split('T')[0])
+          .order('appointment_date', { ascending: true });
+
+        if (appointmentsError) throw appointmentsError;
+        if (ignore) return;
+
+        // Filter and map appointments
+        const connectedPatientIds = new Set((patientsData || []).map((p: any) => p.patient_id));
+        const filtered = (appointmentsData || []).filter((apt: any) =>
+          connectedPatientIds.has(apt.patient_id)
+        );
+
+        const patientMap = new Map((patientsData || []).map((p: any) => [p.patient_id, p.patient_name]));
+        const appointmentsWithName = filtered.map((apt: any) => ({
+          ...apt,
+          patient_name: patientMap.get(apt.patient_id) || 'Unknown Patient'
+        }));
+
+        if (ignore) return;
+        setTodaysAppointments(appointmentsWithName);
+      } catch (err: unknown) {
+        if (ignore) return;
+        setError(err instanceof Error ? err.message : String(err));
+      } finally {
+        if (!ignore) {
           setLoading(false);
         }
-      };
-      fetchPatients();
+      }
+    };
 
-      // Also fetch today's appointments for all connected patients
-      const fetchTodaysAppointments = async () => {
-        try {
-          const { data, error } = await supabase
-            .from('appointments')
-            .select('*')
-            .gte('appointment_date', new Date().toISOString().split('T')[0])
-            .lt('appointment_date', new Date(Date.now() + 86400000).toISOString().split('T')[0])
-            .order('appointment_date', { ascending: true });
-          if (error) throw error;
-          // Filter to only appointments for connected patients (RLS should already do this, but double-check)
-          const connectedPatientIds = new Set(patients.map(p => p.patient_id));
-          const filtered = data.filter((apt: any) => connectedPatientIds.has(apt.patient_id));
-          // Attach patient_name for display
-          const patientMap = new Map(patients.map(p => [p.patient_id, p.patient_name]));
-          const appointmentsWithName = filtered.map(apt => ({
-            ...apt,
-            patient_name: patientMap.get(apt.patient_id) || 'Unknown Patient'
-          }));
-          setTodaysAppointments(appointmentsWithName);
-        } catch (err: any) {
-          setError(err.message);
-        }
-      };
-      fetchTodaysAppointments();
-    }
-  }, [user, patients]);
+    fetchData();
+
+    return () => {
+      ignore = true;
+    };
+  }, [user]);
 
   const handleLogout = async () => {
     try {
@@ -100,7 +116,7 @@ export default function ProviderDashboard() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+          <div className="bg-red-50 border-l-2 border-red-500 text-red-700 p-4 mb-6" role="alert">
             <p>{error}</p>
           </div>
         )}
