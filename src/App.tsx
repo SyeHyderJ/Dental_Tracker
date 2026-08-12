@@ -14,6 +14,7 @@ import Records from './screens/Records';
 import ShareAccess from './screens/ShareAccess';
 import ProviderDashboard from './screens/provider/ProviderDashboard';
 import PatientDetail from './screens/provider/PatientDetail';
+import { ThemeTest } from './theme-test';
 
 function App() {
   const { user } = useAuth();

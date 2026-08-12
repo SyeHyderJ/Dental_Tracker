@@ -1,1 +1,17 @@
 @import "tailwindcss";
+
+@theme {
+  --color-primary: #0891B2;
+  --color-secondary: #22D3EE;
+  --color-accent: #059669;
+  --color-background: #ECFEFF;
+  --color-foreground: #164E63;
+  --color-card: #FFFFFF;
+  --color-muted: #E8F1F6;
+  --color-border: #A5F3FC;
+  --color-destructive: #DC2626;
+  --color-ring: #0891B2;
+
+  --font-heading: 'Figtree', sans-serif;
+  --font-body: 'Noto Sans', sans-serif;
+}
