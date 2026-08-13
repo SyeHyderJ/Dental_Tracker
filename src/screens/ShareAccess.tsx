@@ -14,6 +14,7 @@ export default function ShareAccess() {
   const [grantSuccess, setGrantSuccess] = useState<string | null>(null);
   const [emailInput, setEmailInput] = useState('');
   const [grantLoading, setGrantLoading] = useState(false);
+  const [pendingRequests, setPendingRequests] = useState<Array<any>>([]);
 
   // Fetch provider connections for the current user
   useEffect(() => {
@@ -24,8 +25,9 @@ export default function ShareAccess() {
           const { data, error } = await supabase
             .rpc('get_my_provider_connections');
           if (error) throw error;
-          // Filter to only active connections for display (but we keep all for possible revoke)
           setConnections(data || []);
+          // Update pending requests
+          setPendingRequests((data || []).filter((c: any) => c.status === 'pending'));
         } catch (err: any) {
           setError(err.message);
         } finally {
@@ -48,6 +50,7 @@ export default function ShareAccess() {
       if (error) throw error;
       // Remove the connection from state (since we don't display revoked connections)
       setConnections(prev => prev.filter(c => c.connection_id !== connectionId));
+      setPendingRequests(prev => prev.filter(c => c.connection_id !== connectionId));
     } catch (err: any) {
       setError(err.message);
     }
@@ -95,12 +98,53 @@ export default function ShareAccess() {
         // Refresh connections
         const { data, error } = await supabase
           .rpc('get_my_provider_connections');
-        if (!error) setConnections(data || []);
+        if (!error) {
+          setConnections(data || []);
+          setPendingRequests((data || []).filter((c: any) => c.status === 'pending'));
+        }
       }
     } catch (err: any) {
       setGrantError(err.message);
     } finally {
       setGrantLoading(false);
+    }
+  };
+
+  const handleApprove = async (connectionId: string) => {
+    try {
+      const { error } = await supabase
+        .from('provider_connections')
+        .update({ status: 'active' })
+        .match({ id: connectionId, patient_id: user?.id });
+      if (error) throw error;
+      // Update state
+      setConnections(prev =>
+        prev.map(c =>
+          c.id === connectionId ? { ...c, status: 'active' } : c
+        )
+      );
+      setPendingRequests(prev => prev.filter(c => c.id !== connectionId));
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  const handleDeny = async (connectionId: string) => {
+    try {
+      const { error } = await supabase
+        .from('provider_connections')
+        .update({ status: 'revoked' })
+        .match({ id: connectionId, patient_id: user?.id });
+      if (error) throw error;
+      // Update state
+      setConnections(prev =>
+        prev.map(c =>
+          c.id === connectionId ? { ...c, status: 'revoked' } : c
+        )
+      );
+      setPendingRequests(prev => prev.filter(c => c.id !== connectionId));
+    } catch (err: any) {
+      setError(err.message);
     }
   };
 
@@ -136,10 +180,10 @@ export default function ShareAccess() {
             </div>
           </div>
           <button
-            onClick={handleLogout}
+            onClick={() => navigate('/provider/dashboard')}
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
-            Sign Out
+            Back to Dashboard
           </button>
         </div>
 
@@ -195,6 +239,45 @@ export default function ShareAccess() {
           )}
         </div>
 
+        {/* Pending Requests Section (only show if there are pending requests) */}
+        {pendingRequests.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Pending Requests
+            </h2>
+            <div className="space-y-4">
+              {pendingRequests.map(req => (
+                <div key={req.id} className="bg-white rounded-lg shadow p-6">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <h3 className="text-xl font-semibold text-gray-900">
+                        {req.provider_name}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        Requested: {new Date(req.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="flex space-x-3">
+                      <button
+                        onClick={() => handleApprove(req.id)}
+                        className="px-3 py-1.5 text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 rounded"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => handleDeny(req.id)}
+                        className="px-3 py-1.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded"
+                      >
+                        Deny
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Grant Access Section */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
@@ -232,9 +315,3 @@ export default function ShareAccess() {
     </div>
   );
 }
-
-// Helper function for logout (copy from other screens)
-const handleLogout = async () => {
-  const { logout } = useAuth();
-  await logout();
-};

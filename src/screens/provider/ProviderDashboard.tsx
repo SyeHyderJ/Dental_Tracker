@@ -10,6 +10,9 @@ export default function ProviderDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [todaysAppointments, setTodaysAppointments] = useState<Array<any>>([]);
+  const [requestEmail, setRequestEmail] = useState('');
+  const [requestLoading, setRequestLoading] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   // Fetch provider's patients and today's appointments
   useEffect(() => {
@@ -78,6 +81,68 @@ export default function ProviderDashboard() {
       navigate('/', { replace: true });
     } catch (err: any) {
       setError(err.message);
+    }
+  };
+
+  const handleRequestAccess = async () => {
+    const email = requestEmail.trim();
+    if (!email) {
+      // Do nothing if empty; we won't show message because no attempt made
+      return;
+    }
+    setRequestLoading(true);
+    try {
+      // Look up patient by email (returns patient_id if found, else empty)
+      const { data: patientData, error: lookupError } = await supabase
+        .rpc('find_patient_by_email', { lookup_email: email });
+      if (lookupError) throw lookupError;
+
+      // If we got a patient_id, attempt to insert a pending connection
+      if (patientData && patientData.length > 0) {
+        const patientId = patientData[0].patient_id;
+        const providerId = user?.id;
+        if (providerId) {
+          // Check if an active or pending connection already exists
+          const { data: existingConnections, error: checkError } = await supabase
+            .from('provider_connections')
+            .select('id')
+            .eq('patient_id', patientId)
+            .eq('provider_id', providerId)
+            .in('status', ['active', 'pending']);
+
+          if (checkError) {
+            throw checkError;
+          }
+
+          // Only attempt to insert if no existing active/pending connection
+          if (existingConnections.length === 0) {
+            try {
+              await supabase
+                .from('provider_connections')
+                .insert([
+                  {
+                    patient_id: patientId,
+                    provider_id: providerId,
+                    status: 'pending',
+                    initiated_by: 'provider',
+                  }
+                ]);
+            } catch (insertError) {
+              // Ignore any insert error (e.g., duplicate from race condition) and still show generic message.
+              console.debug('Insert error (ignored):', insertError);
+            }
+          }
+          // If existing connection exists, we skip the insert entirely
+        }
+      }
+      // If no patient data found, we still do nothing and show the same message.
+    } catch (err: any) {
+      // Log error for debugging but do not show to user.
+      console.error('Request access error:', err);
+    } finally {
+      setRequestLoading(false);
+      setRequestEmail(''); // Clear input
+      setHasSubmitted(true);
     }
   };
 
@@ -166,6 +231,46 @@ export default function ProviderDashboard() {
             <p className="text-center text-gray-500 py-8">
               No appointments scheduled for today.
             </p>
+          )}
+        </div>
+
+        {/* Request Patient Access Section */}
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            Request Patient Access
+          </h2>
+          <p className="text-sm text-gray-500 mb-4">
+            Enter a patient's email to request access to their dental records.
+          </p>
+          <form onSubmit={(e) => { e.preventDefault(); handleRequestAccess(); }} className="space-y-4">
+            <div>
+              <label htmlFor="patient-email" className="block text-sm font-medium text-gray-700 mb-2">
+                Patient Email
+              </label>
+              <input
+                id="patient-email"
+                type="email"
+                autoComplete="email"
+                required
+                value={requestEmail}
+                onChange={(e) => setRequestEmail(e.target.value)}
+                className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                disabled={requestLoading}
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={requestLoading}
+              className="w-full flex items-center justify-center px-5 py-3.5 text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-md transition-colors duration-200"
+            >
+              {requestLoading ? 'Sending...' : 'Send Request'}
+            </button>
+          </form>
+          {/* Always show the same message after submission attempt */}
+          {hasSubmitted && !requestLoading && (
+            <div className="bg-gray-50 border-l-2 border-gray-300 text-gray-600 p-4">
+              <p>If an account exists with this email, a request has been sent.</p>
+            </div>
           )}
         </div>
 
