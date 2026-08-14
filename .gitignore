@@ -48,3 +48,11 @@ skills-lock.json
 
 # Supabase temp directory
 supabase/.temp/
+
+# Test files and tokens (should not be committed)
+test_rate_limit.js
+test_security.js
+test_security.mjs
+verbose.txt
+get_token.ps1
+provider_token.txt
