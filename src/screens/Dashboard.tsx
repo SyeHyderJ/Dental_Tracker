@@ -95,46 +95,46 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-12">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-heading text-primary mb-2">
               Welcome back, {userData?.full_name || user?.email?.split('@')[0] || 'User'}!
             </h1>
-            <p className="mt-2 text-sm font-body text-foreground/80">
+            <p className="text-sm font-body text-foreground/60">
               Your dental health dashboard
             </p>
           </div>
-          <div className="flex space-x-3">
+          <div className="flex space-x-4">
             <button
               onClick={() => navigate('/tooth-chart')}
-              className="px-4 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-md hover:bg-muted hover:-translate-y-[var(--translate-y-0-5)] active:scale-[var(--scale-0-98)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-[var(--duration-200)] ease-[var(--ease-out)]"
+              className="px-4 py-2 text-sm font-medium text-foreground bg-card hover:bg-muted/70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/70 transition-colors duration-150"
             >
               Tooth Chart
             </button>
             <button
               onClick={() => navigate('/appointments')}
-              className="px-4 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-md hover:bg-muted hover:-translate-y-[var(--translate-y-0-5)] active:scale-[var(--scale-0-98)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-[var(--duration-200)] ease-[var(--ease-out)]"
+              className="px-4 py-2 text-sm font-medium text-foreground bg-card hover:bg-muted/70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/70 transition-colors duration-150"
             >
               Appointments
             </button>
             <button
               onClick={() => navigate('/records')}
-              className="px-4 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-md hover:bg-muted hover:-translate-y-[var(--translate-y-0-5)] active:scale-[var(--scale-0-98)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-[var(--duration-200)] ease-[var(--ease-out)]"
+              className="px-4 py-2 text-sm font-medium text-foreground bg-card hover:bg-muted/70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/70 transition-colors duration-150"
             >
               Records
             </button>
             <button
               onClick={() => navigate('/share-access')}
-              className="px-4 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-md hover:bg-muted hover:-translate-y-[var(--translate-y-0-5)] active:scale-[var(--scale-0-98)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-[var(--duration-200)] ease-[var(--ease-out)]"
+              className="px-4 py-2 text-sm font-medium text-foreground bg-card hover:bg-muted/70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/70 transition-colors duration-150"
             >
               Share Access
             </button>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-md hover:bg-muted hover:-translate-y-[var(--translate-y-0-5)] active:scale-[var(--scale-0-98)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-[var(--duration-200)] ease-[var(--ease-out)]"
+              className="px-4 py-2 text-sm font-medium text-foreground bg-card hover:bg-muted/70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/70 transition-colors duration-150"
             >
               Sign Out
             </button>
@@ -148,83 +148,83 @@ export default function Dashboard() {
         )}
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-          <div className="bg-card rounded-lg shadow hover:-translate-y-[var(--translate-y-0-5)] active:scale-[var(--scale-0-98)] p-6 transition-all duration-[var(--duration-300)] ease-[var(--ease-out)]">
-            <h3 className="text-lg font-medium text-foreground mb-2">Total Records</h3>
-            <p className="text-3xl font-bold text-primary">{records.length}</p>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+          <div className="bg-card rounded-lg p-4 hover:bg-muted/70 transition-colors duration-150">
+            <h3 className="text-sm font-semibold text-foreground mb-1">Total Records</h3>
+            <p className="text-2xl font-bold text-primary">{records.length}</p>
           </div>
 
-          <div className="bg-card rounded-lg shadow hover:-translate-y-[var(--translate-y-0-5)] active:scale-[var(--scale-0-98)] p-6 transition-all duration-[var(--duration-300)] ease-[var(--ease-out)]">
-            <h3 className="text-lg font-medium text-foreground mb-2">Last Visit</h3>
-            <p className="text-2xl font-bold text-accent">
+          <div className="bg-card rounded-lg p-4 hover:bg-muted/70 transition-colors duration-150">
+            <h3 className="text-sm font-semibold text-foreground mb-1">Last Visit</h3>
+            <p className="text-lg font-bold text-accent">
               {records.length > 0 ? new Date(records[0].created_at).toLocaleDateString() : 'No records'}
             </p>
           </div>
 
-          <div className="bg-card rounded-lg shadow hover:-translate-y-[var(--translate-y-0-5)] active:scale-[var(--scale-0-98)] p-6 transition-all duration-[var(--duration-300)] ease-[var(--ease-out)]">
-            <h3 className="text-lg font-medium text-foreground mb-2">Streak</h3>
-            <p className="text-3xl font-bold text-secondary">0</p>
+          <div className="bg-card rounded-lg p-4 hover:bg-muted/70 transition-colors duration-150">
+            <h3 className="text-sm font-semibold text-foreground mb-1">Streak</h3>
+            <p className="text-2xl font-bold text-secondary">0</p>
           </div>
 
-          <div className="bg-card rounded-lg shadow hover:-translate-y-[var(--translate-y-0-5)] active:scale-[var(--scale-0-98)] p-6 transition-all duration-[var(--duration-300)] ease-[var(--ease-out)]">
-            <h3 className="text-lg font-medium text-foreground mb-2">Next Checkup</h3>
-            <p className="text-2xl font-bold text-primary">TBD</p>
+          <div className="bg-card rounded-lg p-4 hover:bg-muted/70 transition-colors duration-150">
+            <h3 className="text-sm font-semibold text-foreground mb-1">Next Checkup</h3>
+            <p className="text-lg font-bold text-primary">TBD</p>
           </div>
         </div>
 
         {/* Recent Records */}
-        <div className="mb-8">
-          <h2 className="sr-only font-body text-foreground mb-4">Recent dental records</h2>
-          <div className="space-y-6">
-            {records.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-sm font-body text-foreground/60">
-                  No dental records yet. Add your first record to get started.
-                </p>
-              </div>
-            ) : (
-              <>
-                {records.map((record) => (
-                  <div key={record.id} className="bg-card rounded-lg shadow hover:-translate-y-[var(--translate-y-0-25)] active:scale-[var(--scale-0-99)] p-4 border border-border transition-all duration-[var(--duration-200)] ease-[var(--ease-out)]">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-heading text-foreground mb-1">
-                          {record.record_type || 'Dental Checkup'}
-                        </h3>
-                        <p className="text-sm font-body text-foreground/60">
-                          {new Date(record.recorded_at || record.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <span className="px-2 py-1 text-xs font-medium
-                          {record.status === 'completed' ? 'bg-accent/10 text-accent' :
-                           record.status === 'pending' ? 'bg-secondary/10 text-secondary' :
-                           'bg-muted/10 text-foreground/60'}
-                        ">
-                          {record.status?.charAt(0).toUpperCase() + record.status?.slice(1) || 'Recorded'}
-                        </span>
-                      </div>
+        <div className="mb-6">
+          <h2 className="sr-only font-body text-foreground mb-2">Recent dental records</h2>
+          {records.length === 0 ? (
+            <div className="text-center py-6">
+              <p className="text-sm font-body text-foreground/60">
+                No dental records yet. Add your first record to get started.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {records.map((record, _index) => (
+                <div
+                  key={record.id}
+                  className="bg-card rounded-lg p-3 hover:bg-muted/70 transition-colors duration-150"
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-heading text-foreground mb-1">
+                        {record.record_type || 'Dental Checkup'}
+                      </h3>
+                      <p className="text-xs font-body text-foreground/60">
+                        {new Date(record.recorded_at || record.created_at).toLocaleDateString()}
+                      </p>
                     </div>
-                    {record.notes && (
-                      <p className="mt-2 text-sm font-body text-foreground/60 line-clamp-2">{record.notes}</p>
-                    )}
+                    <div className="text-right">
+                      <span className="px-2 py-0.5 text-xs font-medium
+                        {record.status === 'completed' ? 'bg-accent/20 text-accent' :
+                         record.status === 'pending' ? 'bg-secondary/20 text-secondary' :
+                         'bg-muted/20 text-foreground/60'}
+                      ">
+                        {record.status?.charAt(0).toUpperCase() + record.status?.slice(1) || 'Recorded'}
+                      </span>
+                    </div>
                   </div>
-                ))}
-              </>
-            )}
-          </div>
+                  {record.notes && (
+                    <p className="mt-1 text-xs font-body text-foreground/60 line-clamp-2">{record.notes}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Call to Action */}
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-heading text-primary mb-4">
+        <div className="text-center py-6">
+          <h2 className="text-xl font-heading text-primary mb-4">
             Ready to track your first dental record?
           </h2>
-          <p className="max-w-xl mx-auto text-lg font-body text-foreground/60 mb-6">
+          <p className="max-w-xl mx-auto text-lg font-body text-foreground/60 mb-4">
             Start logging your dental checkups, treatments, and daily oral hygiene habits to maintain a healthy smile.
           </p>
-          {/* Placeholder button - would navigate to ToothChart or Records screen */}
-          <button className="px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 hover:-translate-y-0.5 active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-200 ease-out">
+          <button className="px-5 py-2 bg-primary text-white font-medium hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/80 transition-colors duration-150">
             Add First Record
           </button>
         </div>

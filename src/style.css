@@ -1,19 +1,88 @@
 @import "tailwindcss";
 
-@theme {
-  --color-primary: #0891B2;
-  --color-secondary: #22D3EE;
-  --color-accent: #059669;
-  --color-background: #ECFEFF;
-  --color-foreground: #164E63;
-  --color-card: #FFFFFF;
-  --color-muted: #E8F1F6;
-  --color-border: #A5F3FC;
-  --color-destructive: #DC2626;
-  --color-ring: #0891B2;
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-  --font-heading: 'Figtree', sans-serif;
-  --font-body: 'Noto Sans', sans-serif;
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.reveal-active {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* Animation delay utilities */
+.animation-delay-0 {
+  animation-delay: 0s;
+}
+
+.animation-delay-100 {
+  animation-delay: 0.1s;
+}
+
+.animation-delay-200 {
+  animation-delay: 0.2s;
+}
+
+.animation-delay-300 {
+  animation-delay: 0.3s;
+}
+
+.animation-delay-400 {
+  animation-delay: 0.4s;
+}
+
+.animation-delay-500 {
+  animation-delay: 0.5s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-active {
+    animation: none;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .animation-delay-0,
+  .animation-delay-100,
+  .animation-delay-200,
+  .animation-delay-300,
+  .animation-delay-400,
+  .animation-delay-500 {
+    animation-delay: 0s;
+  }
+}
+
+@theme {
+  --color-primary: #0f172a;
+  --color-primary-container: #131b2e;
+  --color-on-primary: #ffffff;
+  --color-secondary: #0d9488;
+  --color-secondary-container: #86f2e4;
+  --color-on-secondary-container: #006f66;
+  --color-tertiary: #f8fafc;
+  --color-tertiary-container: #191c1e;
+  --color-background: #f8f9ff;
+  --color-on-background: #0b1c30;
+  --color-card: #ffffff;
+  --color-muted: #eff4ff;
+  --color-border: #76777d;
+  --color-outline-variant: #E2E8F0;
+  --color-destructive: #ba1a1a;
+  --color-on-destructive: #ffffff;
+  --color-ring: #000000;
+
+  --font-heading: Inter;
+  --font-body: Inter;
 
   --duration-100: 100ms;
   --duration-125: 125ms;
@@ -35,4 +104,11 @@
   --scale-0-97: 0.97;
   --scale-0-98: 0.98;
   --scale-0-99: 0.99;
+
+  --radius-sm: 0.25rem;
+  --radius-default: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
 }
