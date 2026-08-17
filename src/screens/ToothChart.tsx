@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
+import React from 'react';
 import { useAuth } from '../lib/auth';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
-import BackButton from '../components/BackButton';
 
 export default function ToothChart() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [records, setRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -19,7 +19,7 @@ export default function ToothChart() {
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<boolean>(false);
-  const [showHistory, setShowHistory] = useState(false);
+  const [viewMode, setViewMode] = useState<'arch' | 'list'>('arch'); // default to arch view
 
   // Fetch all tooth records for the current user
   useEffect(() => {
@@ -46,19 +46,6 @@ export default function ToothChart() {
     }
   }, [user]);
 
-  // When records update, compute the most recent record per tooth for quick lookup
-  // We'll compute this in the render for simplicity, but we can memoize if needed
-
-  // Handle logout
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/', { replace: true });
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
-
   // Handle selecting a tooth
   const handleToothSelect = (toothNumber: number) => {
     setSelectedTooth(toothNumber);
@@ -76,11 +63,6 @@ export default function ToothChart() {
     setFormSuccess(false);
   };
 
-  // Handle closing the modal
-  const handleModalClose = () => {
-    setSelectedTooth(null);
-  };
-
   // Handle form input changes
   const handleConditionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFormCondition(e.target.value);
@@ -88,6 +70,10 @@ export default function ToothChart() {
 
   const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setFormNotes(e.target.value);
+  };
+
+  const handleProviderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormProvider(e.target.value);
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -154,43 +140,50 @@ export default function ToothChart() {
     }
   };
 
-  // Determine the status color for a tooth based on its most recent record
-  const getToothStatus = (toothNumber: number): string => {
+  // Helper to get the condition for a tooth (most recent or 'healthy' if none)
+  const getToothCondition = (toothNumber: number): string => {
     const toothRecords = records
       .filter((r) => r.tooth_number === toothNumber)
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     if (toothRecords.length === 0) {
-      return 'gray'; // no record
+      return 'healthy';
     }
+    return toothRecords[0].condition;
+  };
 
-    const mostRecent = toothRecords[0];
-    const condition = mostRecent.condition.toLowerCase();
+  // Helper to get background class for a tooth based on condition
+  const getToothBackgroundClass = (condition: string): string => {
+    const c = condition.toLowerCase();
+    if (c === 'healthy') return 'bg-secondary-container/50';
+    if (c === 'filling') return 'bg-tertiary/50';
+    if (c === 'crown') return 'bg-secondary/50';
+    if (c === 'cavity' || c === 'extracted') return 'bg-destructive/50';
+    if (c === 'needs-attention') return 'bg-destructive/50';
+    return 'bg-muted/20';
+  };
 
-    if (condition === 'healthy' || condition === 'filling' || condition === 'crown') {
-      return 'green'; // healthy or restored
-    } else if (condition === 'cavity' || condition === 'extracted') {
-      return 'red'; // active issue
-    } else {
-      return 'yellow'; // needs attention or other
+  // Helper to determine if we should show a dot indicator
+  const shouldShowDot = (condition: string): boolean => {
+    const c = condition.toLowerCase();
+    return c === 'cavity' || c === 'needs-attention' || c === 'extracted';
+  };
+
+  // Helper to get dot color class (white for visibility on red background)
+  const getDotColorClass = (condition: string): string => {
+    const c = condition.toLowerCase();
+    if (c === 'cavity' || c === 'extracted' || c === 'needs-attention') {
+      return 'bg-on-destructive'; // white
     }
+    return 'bg-muted/50'; // fallback
   };
 
   // Define the tooth layout: Universal Numbering System 1-32
-  // We'll split into upper and lower arches for a simple grid
-  // Upper arch: teeth 1-16 (right to left from dentist's view, but we'll show patient's left to right)
-  // Actually, for simplicity, we'll just show 1-32 in two rows: 1-16 upper, 17-32 lower
-  // But note: Universal numbering:
-  //   Upper right: 1-8 (from patient's right to left)
-  //   Upper left: 9-16 (from patient's right to left)
-  //   Lower left: 17-24 (from patient's left to right)
-  //   Lower right: 25-32 (from patient's left to right)
-  // We'll simplify and just show 1-16 in the first row (upper) and 17-32 in the second row (lower)
-  // And we'll note that this is a simplification for v1.
-
-  // We'll create arrays for the two rows
-  const upperTeeth = Array.from({ length: 16 }, (_, i) => i + 1); // 1-16
-  const lowerTeeth = Array.from({ length: 16 }, (_, i) => i + 17); // 17-32
+  // Split into upper and lower arches, each with two rows
+  const upperTeethRow1 = Array.from({ length: 8 }, (_, i) => i + 1); // 1-8
+  const upperTeethRow2 = Array.from({ length: 8 }, (_, i) => i + 9); // 9-16
+  const lowerTeethRow1 = Array.from({ length: 8 }, (_, i) => i + 17); // 17-24
+  const lowerTeethRow2 = Array.from({ length: 8 }, (_, i) => i + 25); // 25-32
 
   if (loading) {
     return (
@@ -202,7 +195,7 @@ export default function ToothChart() {
 
   if (error) {
     return (
-      <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+      <div className="bg-red-50 text-red-700 p-4 mb-6" role="alert">
         <p>{error}</p>
       </div>
     );
@@ -213,289 +206,383 @@ export default function ToothChart() {
     return null;
   }
 
+  // Get last updated timestamp from records
+  const lastUpdated = records.length > 0
+    ? new Date(records[0].date).toLocaleString()
+    : 'Never';
+
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <BackButton />
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Tooth Chart
-              </h1>
-              <p className="mt-2 text-sm text-gray-500">
-                Click a tooth to view its history and add a new record
-              </p>
+    <div className="min-h-screen flex flex-col bg-background">
+      {/* TOP NAV BAR */}
+      <nav className="bg-primary text-on-primary">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between py-4">
+          {/* Left: circular avatar image placeholder */}
+          <div className="flex items-center space-x-3">
+            <div className="h-10 w-10 rounded-full bg-on-primary/20 flex items-center justify-center">
+              <span className="text-on-primary">A</span>
+            </div>
+            <div className="hidden md:flex space-x-4 text-sm font-medium">
+              {/* Nav links: Home / History / Chart / Settings */}
+              <a href="/" className="hover:text-on-primary/80 transition-colors">Home</a>
+              <a href="/records" className="hover:text-on-primary/80 transition-colors">History</a>
+              <a
+                href="/tooth-chart"
+                className="text-on-primary bg-on-primary/20 px-3 py-1 rounded-full"
+              >
+                Chart
+              </a>
+              <a href="/share-access" className="hover:text-on-primary/80 transition-colors">Settings</a>
             </div>
           </div>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Sign Out
-          </button>
-        </div>
 
-        {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
-            <p>{error}</p>
+          {/* Center: DentalTracker wordmark */}
+          <div className="flex items-center">
+            <h1 className="text-2xl font-heading text-on-primary">
+              DentalTracker
+            </h1>
           </div>
-        )}
 
-        {/* Tooth Chart */}
-        <div className="mb-8">
-          <div className="space-y-4">
-            {/* Upper Arch */}
-            <div className="flex flex-col items-center">
-              <p className="mb-2 text-sm font-medium text-gray-600">Upper Teeth</p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {upperTeeth.map((toothNumber) => {
-                  const statusColor = getToothStatus(toothNumber);
-                  const bgColor = statusColor === 'gray' ? 'bg-gray-200' :
-                                  statusColor === 'green' ? 'bg-green-200' :
-                                  statusColor === 'yellow' ? 'bg-yellow-200' :
-                                  'bg-red-200';
-                  return (
-                    <button
-                      key={toothNumber}
-                      onClick={() => handleToothSelect(toothNumber)}
-                      className={`w-11 h-11 sm:w-12 sm:h-12 rounded-md ${bgColor} hover:bg-opacity-80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200`}
-                      aria-label={`Tooth ${toothNumber}: ${statusColor}`}
-                    >
-                      <div className="flex h-full w-full items-center justify-center">
-                        <span className="text-xs font-medium">{toothNumber}</span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Lower Arch */}
-            <div className="flex flex-col items-center">
-              <p className="mb-2 text-sm font-medium text-gray-600">Lower Teeth</p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {lowerTeeth.map((toothNumber) => {
-                  const statusColor = getToothStatus(toothNumber);
-                  const bgColor = statusColor === 'gray' ? 'bg-gray-200' :
-                                  statusColor === 'green' ? 'bg-green-200' :
-                                  statusColor === 'yellow' ? 'bg-yellow-200' :
-                                  'bg-red-200';
-                  return (
-                    <button
-                      key={toothNumber}
-                      onClick={() => handleToothSelect(toothNumber)}
-                      className={`w-11 h-11 sm:w-12 sm:h-12 rounded-md ${bgColor} hover:bg-opacity-80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200`}
-                      aria-label={`Tooth ${toothNumber}: ${statusColor}`}
-                    >
-                      <div className="flex h-full w-full items-center justify-center">
-                        <span className="text-xs font-medium">{toothNumber}</span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+          {/* Right: lock icon */}
+          <div className="flex items-center">
+            <div className="h-8 w-8 flex items-center justify-center bg-on-primary/20 rounded-full">
+              <span className="text-on-primary">🔒</span>
             </div>
           </div>
         </div>
+      </nav>
 
-        {/* Selected Tooth Modal/Panel */}
-        {selectedTooth !== null && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 sm:mx-0 relative flex flex-col max-h-[90vh]">
-              <div className="flex justify-between items-start mb-4 p-4">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  Tooth {selectedTooth}
+      {/* PAGE CONTENT */}
+      <div className="flex-1 flex px-4 sm:px-6 lg:px-8">
+        {/* PAGE HEADER */}
+        <div className="flex-1 flex flex-col bg-background">
+          <header className="mb-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-2">
+                <h2 className="text-4xl font-heading text-on-background">
+                  Clinical Chart
                 </h2>
-                <button
-                  onClick={handleModalClose}
-                  className="text-gray-500 hover:text-gray-700 h-10 w-10 flex items-center justify-center rounded-md hover:bg-gray-100"
-                >
-                  ×
-                </button>
+                <p className="text-sm text-on-background/60 flex items-center">
+                  <span className="mr-1">⏰</span>
+                  Last updated: Today, {lastUpdated}
+                </p>
               </div>
-              <div className="flex-1 overflow-y-auto p-4">
-                {/* Tooth Record History */}
-                <div className="mb-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-lg font-medium text-gray-900">
-                      Record History
-                    </h3>
-                    {toothRecords.length > 1 && (
+
+              {/* TOGGLE CONTROL: top-right of the content area */}
+              <div className="flex items-center space-x-2">
+                {/* Segmented control for Arch View / List View */}
+                <div className="relative inline-flex h-10 px-2 bg-muted/50 rounded-full shadow-inner">
+                  {/* Track */}
+                  <div className="absolute inset-0 bg-muted/30 rounded-full"></div>
+                  {/* Active indicator */}
+                  <div className={`absolute inset-0 flex items-center ${viewMode === 'arch' ? 'left-0' : 'right-0'} w-1/2 h-full bg-card rounded-full transition-transform duration-200`}></div>
+                  {/* Buttons */}
+                  <button
+                    onClick={() => setViewMode('arch')}
+                    className={`flex-1 relative z-10 flex items-center justify-center text-sm font-medium text-on-background/60 ${viewMode === 'arch' ? 'text-on-background' : ''} hover:bg-muted/40`}
+                  >
+                    Arch View
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`flex-1 relative z-10 flex items-center justify-center text-sm font-medium text-on-background/60 ${viewMode === 'list' ? 'text-on-background' : ''} hover:bg-muted/40`}
+                  >
+                    List View
+                  </button>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          {/* MAIN CONTENT - two-column layout */}
+          <div className="flex-1 flex flex-col sm:flex-row gap-6">
+            {/* LEFT: TOOTH GRID (larger card) */}
+            <div className="flex-1 bg-card rounded-lg shadow-lg p-6">
+              <div className="space-y-6">
+                {/* MAXILLARY ARCH (UPPER) */}
+                <div className="text-center text-sm font-medium text-on-background/60 text-uppercase">
+                  MAXILLARY ARCH (UPPER)
+                </div>
+                <div className="grid grid-cols-8 gap-2 mb-6">
+                  {upperTeethRow1.map((toothNumber) => {
+                    const condition = getToothCondition(toothNumber);
+                    return (
                       <button
-                        onClick={() => setShowHistory(!showHistory)}
-                        className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
+                        key={toothNumber}
+                        onClick={() => handleToothSelect(toothNumber)}
+                        className={`w-full h-12 rounded-md ${getToothBackgroundClass(condition)} hover:bg-opacity-80 focus:outline-none focus:ring-2 focus-ring-ring focus-ring-offset-2 transition-colors duration-200`}
+                        aria-label={`Tooth ${toothNumber}: ${condition}`}
                       >
-                        {showHistory ? 'Show less' : 'Show all records'}
+                        <div className="flex h-full w-full items-center justify-center">
+                          <span className="text-xs font-medium text-on-background">{toothNumber}</span>
+                          {shouldShowDot(condition) && (
+                            <div className={`absolute right-1 top-1 h-2 w-2 rounded-full ${getDotColorClass(condition)}`} />
+                          )}
+                        </div>
                       </button>
-                    )}
+                    );
+                  })}
+                </div>
+                <div className="grid grid-cols-8 gap-2 mb-6">
+                  {upperTeethRow2.map((toothNumber) => {
+                    const condition = getToothCondition(toothNumber);
+                    return (
+                      <button
+                        key={toothNumber}
+                        onClick={() => handleToothSelect(toothNumber)}
+                        className={`w-full h-12 rounded-md ${getToothBackgroundClass(condition)} hover:bg-opacity-80 focus:outline-none focus:ring-2 focus-ring-ring focus-ring-offset-2 transition-colors duration-200`}
+                        aria-label={`Tooth ${toothNumber}: ${condition}`}
+                      >
+                        <div className="flex h-full w-full items-center justify-center">
+                          <span className="text-xs font-medium text-on-background">{toothNumber}</span>
+                          {shouldShowDot(condition) && (
+                            <div className={`absolute right-1 top-1 h-2 w-2 rounded-full ${getDotColorClass(condition)}`} />
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                {/* Divider line */}
+                <div className="h-px bg-muted/20 mb-6"></div>
+                {/* MANDIBULAR ARCH (LOWER) */}
+                <div className="text-center text-sm font-medium text-on-background/60 text-uppercase mb-4">
+                  MANDIBULAR ARCH (LOWER)
+                </div>
+                <div className="grid grid-cols-8 gap-2 mb-6">
+                  {lowerTeethRow1.map((toothNumber) => {
+                    const condition = getToothCondition(toothNumber);
+                    return (
+                      <button
+                        key={toothNumber}
+                        onClick={() => handleToothSelect(toothNumber)}
+                        className={`w-full h-12 rounded-md ${getToothBackgroundClass(condition)} hover:bg-opacity-80 focus:outline-none focus:ring-2 focus-ring-ring focus-ring-offset-2 transition-colors duration-200`}
+                        aria-label={`Tooth ${toothNumber}: ${condition}`}
+                      >
+                        <div className="flex h-full w-full items-center justify-center">
+                          <span className="text-xs font-medium text-on-background">{toothNumber}</span>
+                          {shouldShowDot(condition) && (
+                            <div className={`absolute right-1 top-1 h-2 w-2 rounded-full ${getDotColorClass(condition)}`} />
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="grid grid-cols-8 gap-2 mb-6">
+                  {lowerTeethRow2.map((toothNumber) => {
+                    const condition = getToothCondition(toothNumber);
+                    return (
+                      <button
+                        key={toothNumber}
+                        onClick={() => handleToothSelect(toothNumber)}
+                        className={`w-full h-12 rounded-md ${getToothBackgroundClass(condition)} hover:bg-opacity-80 focus:outline-none focus:ring-2 focus-ring-ring focus-ring-offset-2 transition-colors duration-200`}
+                        aria-label={`Tooth ${toothNumber}: ${condition}`}
+                      >
+                        <div className="flex h-full w-full items-center justify-center">
+                          <span className="text-xs font-medium text-on-background">{toothNumber}</span>
+                          {shouldShowDot(condition) && (
+                            <div className={`absolute right-1 top-1 h-2 w-2 rounded-full ${getDotColorClass(condition)}`} />
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                {/* Legend row at the bottom */}
+                <div className="flex items-center justify-center space-x-6 mt-6 text-sm text-on-background/60">
+                  {/* Healthy */}
+                  <div className="flex items-center space-x-2">
+                    <div className="h-3 w-3 rounded-full bg-secondary" />
+                    <span>Healthy</span>
                   </div>
-                  {toothRecords.length === 0 ? (
-                    <p className="text-gray-500 italic">No records for this tooth yet.</p>
-                  ) : (
-                    <div className="space-y-4">
-                      {!showHistory && toothRecords.length > 1 ? (
-                        <>
-                          {/* Show only the most recent record */}
-                          {toothRecords.slice(0, 1).map((record) => (
-                            <div key={record.id} className="border rounded-lg p-4">
-                              <div className="flex justify-between items-start mb-2">
-                                <span className="font-medium text-gray-900">
-                                  {record.condition}
-                                </span>
-                                <span className="text-sm text-gray-500">
-                                  {new Date(record.date).toLocaleDateString()}
-                                </span>
-                              </div>
-                              {record.provider_name && (
-                                <p className="text-sm text-gray-600">
-                                  Provider: {record.provider_name}
-                                </p>
-                              )}
-                              {record.notes && (
-                                <p className="text-sm text-gray-600 line-clamp-2">
-                                  {record.notes}
-                                </p>
-                              )}
-                            </div>
-                          ))}
-                          <div className="text-center text-sm text-gray-500">
-                            and {toothRecords.length - 1} more record{toothRecords.length !== 2 ? 's' : ''}
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          {toothRecords.map((record) => (
-                            <div key={record.id} className="border rounded-lg p-4">
-                              <div className="flex justify-between items-start mb-2">
-                                <span className="font-medium text-gray-900">
-                                  {record.condition}
-                                </span>
-                                <span className="text-sm text-gray-500">
-                                  {new Date(record.date).toLocaleDateString()}
-                                </span>
-                              </div>
-                              {record.provider_name && (
-                                <p className="text-sm text-gray-600">
-                                  Provider: {record.provider_name}
-                                </p>
-                              )}
-                              {record.notes && (
-                                <p className="text-sm text-gray-600 line-clamp-2">
-                                  {record.notes}
-                                </p>
-                              )}
-                            </div>
-                          ))}
-                        </>
-                      )}
+                  {/* Filling */}
+                  <div className="flex items-center space-x-2">
+                    <div className="h-3 w-3 rounded-full bg-tertiary" />
+                    <span>Filling</span>
+                  </div>
+                  {/* Crown */}
+                  <div className="flex items-center space-x-2">
+                    <div className="h-3 w-3 rounded-full bg-secondary" />
+                    <span>Crown</span>
+                  </div>
+                  {/* Needs Attention */}
+                  <div className="flex items-center space-x-2">
+                    <div className="h-3 w-3 rounded-full bg-destructive" />
+                    <span>Needs Attention</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT: TOOTH DETAIL (narrower card) */}
+            <div className="w-64 flex-shrink-0 bg-card rounded-lg shadow-lg p-6">
+              {/* Empty state when no tooth selected */}
+              {!selectedTooth ? (
+                <div className="text-center py-12">
+                  <p className="text-on-background/60">
+                    Select a tooth to view details and add a record
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {/* Red "ACTION REQUIRED" banner if needed */}
+                  {toothRecords.length > 0 && (
+                    <>
+                      {toothRecords[0].condition.toLowerCase() === 'cavity' || toothRecords[0].condition.toLowerCase() === 'needs-attention' ? (
+                        <div className="mb-4 p-3 bg-destructive/20 text-destructive rounded-lg text-sm font-medium">
+                          ACTION REQUIRED: Tooth {selectedTooth}
+                        </div>
+                      ) : null}
+                    </>
+                  )}
+                  {/* Tooth name/number as heading */}
+                  <h3 className="text-2xl font-heading text-on-background mb-2">
+                    Tooth {selectedTooth}
+                  </h3>
+                  {/* Description/date line */}
+                  <p className="text-sm text-on-background/60 mb-4">
+                    {toothRecords.length > 0
+                      ? `${toothRecords[0].condition} • ${new Date(toothRecords[0].date).toLocaleDateString()}`
+                      : 'No records yet'}
+                  </p>
+                  {/* Highlighted note box */}
+                  {toothRecords.length > 0 && toothRecords[0].notes && (
+                    <div className="mb-6 p-4 bg-muted/50 rounded-lg">
+                      <p className="text-sm text-on-background">{toothRecords[0].notes}</p>
                     </div>
                   )}
-                </div>
-
-                {/* Add Record Form */}
-                <div className="mb-6">
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    Add New Record
-                  </h3>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                      <label htmlFor="provider" className="block text-sm font-medium text-gray-700 mb-2">
-                        Provider
-                      </label>
-                      <input
-                        id="provider"
-                        type="text"
-                        value={formProvider}
-                        onChange={e => setFormProvider(e.target.value)}
-                        className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="condition" className="block text-sm font-medium text-gray-700 mb-2">
-                        Condition
-                      </label>
-                      <select
-                        id="condition"
-                        value={formCondition}
-                        onChange={handleConditionChange}
-                        className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                      >
-                        <option value="">Select condition</option>
-                        <option value="Healthy">Healthy</option>
-                        <option value="Cavity">Cavity</option>
-                        <option value="Filling">Filling</option>
-                        <option value="Crown">Crown</option>
-                        <option value="Extracted">Extracted</option>
-                        <option value="Other">Other</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-2">
-                        Notes
-                      </label>
-                      <textarea
-                        id="notes"
-                        value={formNotes}
-                        onChange={handleNotesChange}
-                        rows={3}
-                        maxLength={500}
-                        className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                      />
-                    </div>
-
-                    <div>
-                      <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-2">
-                        Date
-                      </label>
-                      <input
-                        id="date"
-                        type="date"
-                        value={formDate}
-                        onChange={handleDateChange}
-                        className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                      />
-                    </div>
-
-                    {formError && (
-                      <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4" role="alert">
-                        <p>{formError}</p>
+                  {/* Treatment History section */}
+                  <div className="mb-6">
+                    <h3 className="text-lg font-heading text-on-background mb-2">
+                      Treatment History
+                    </h3>
+                    {toothRecords.length === 0 ? (
+                      <p className="text-on-background/60">No treatment history</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {toothRecords.map((record) => (
+                          <div key={record.id} className="flex items-center space-x-3 p-3 bg-muted/20 rounded-lg">
+                            {/* Dot */}
+                            <div
+                              className={`h-2.5 w-2.5 rounded-full ${getDotColorClass(
+                                record.condition.toLowerCase()
+                              )}`}
+                            />
+                            <div className="flex-1">
+                              <p className="text-sm text-on-background/60">
+                                {record.condition}
+                              </p>
+                              <p className="text-xs text-on-background/50">
+                                {new Date(record.date).toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     )}
-
-                    {formSuccess && (
-                      <div className="bg-green-50 border-l-4 border-green-500 text-green-700 p-4" role="alert">
-                        <p>Record added successfully!</p>
+                  </div>
+                  {/* Form for adding a new record */}
+                  <div className="mt-6">
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                      <div className="space-y-2">
+                        <label htmlFor="condition" className="block text-label-md font-medium text-on-background">
+                          Condition
+                        </label>
+                        <select
+                          id="condition"
+                          value={formCondition}
+                          onChange={handleConditionChange}
+                          className="block w-full pl-3 pr-3 py-2 bg-card border border-outline-variant rounded-md text-on-background placeholder-text-on-background/50 focus:outline-none focus:ring-2 focus-ring-ring focus-ring-offset-2"
+                        >
+                          <option value="">Select a condition</option>
+                          <option value="healthy">Healthy</option>
+                          <option value="filling">Filling</option>
+                          <option value="crown">Crown</option>
+                          <option value="cavity">Cavity</option>
+                          <option value="extracted">Extracted</option>
+                          <option value="needs-attention">Needs Attention</option>
+                        </select>
                       </div>
-                    )}
-
-                    <div className="pt-4">
-                      <button
-                        type="submit"
-                        disabled={formLoading}
-                        className={`w-full flex items-center justify-center px-5 py-3.5 text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-md transition-colors duration-200 ${formLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      >
-                        {formLoading ? (
-                          <>
-                            <svg className="h-4 w-4 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-14.736 0m14.736 6a8.003 8.003 0 00-14.736 0m14.736 0A8.001 8.001 0 1022.582 16m0 0h5.418m0 0a8.003 8.003 0 01-14.736 0z"></path>
-                            </svg>
-                            Saving...
-                          </>
-                        ) : (
-                          'Add Record'
-                        )}
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
+                      <div className="space-y-2">
+                        <label htmlFor="notes" className="block text-label-md font-medium text-on-background">
+                          Notes (optional)
+                        </label>
+                        <textarea
+                          id="notes"
+                          value={formNotes}
+                          onChange={handleNotesChange}
+                          className="block w-full pl-3 pr-3 py-2 bg-card border border-outline-variant rounded-md text-on-background placeholder-text-on-background/50 focus:outline-none focus:ring-2 focus-ring-ring focus-ring-offset-2"
+                          rows={3}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="provider" className="block text-label-md font-medium text-on-background">
+                          Provider (optional)
+                        </label>
+                        <input
+                          id="provider"
+                          value={formProvider}
+                          onChange={handleProviderChange}
+                          className="block w-full pl-3 pr-3 py-2 bg-card border border-outline-variant rounded-md text-on-background placeholder-text-on-background/50 focus:outline-none focus:ring-2 focus-ring-ring focus-ring-offset-2"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="date" className="block text-label-md font-medium text-on-background">
+                          Date
+                        </label>
+                        <input
+                          id="date"
+                          type="date"
+                          value={formDate}
+                          onChange={handleDateChange}
+                          className="block w-full pl-3 pr-3 py-2 bg-card border border-outline-variant rounded-md text-on-background placeholder-text-on-background/50 focus:outline-none focus:ring-2 focus-ring-ring focus-ring-offset-2"
+                        />
+                      </div>
+                      <div className="flex items-center justify-center">
+                        <button
+                          type="submit"
+                          disabled={formLoading}
+                          className="w-full flex items-center justify-center px-5 py-3 text-on-primary font-medium bg-primary text-on-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus-ring-ring focus-ring-offset-2 disabled:bg-primary/50"
+                        >
+                          {formLoading ? (
+                            <React.Fragment>
+                              {/* Loading spinner */}
+                              <div className="animate-spin h-4 w-4 mr-2"></div>
+                              Adding...
+                            </React.Fragment>
+                          ) : (
+                            <React.Fragment>
+                              <span className="mr-2">📝</span>
+                              Add Record
+                            </React.Fragment>
+                          )}
+                        </button>
+                      </div>
+                      {formError && (
+                        <p className="mt-2 text-sm text-destructive">{formError}</p>
+                      )}
+                      {formSuccess && (
+                        <p className="mt-2 text-sm text-secondary">
+                          Record added successfully!
+                        </p>
+                      )}
+                    </form>
+                  </div>
+                  {/* Full-width dark button "Schedule Treatment" */}
+                  <div className="mt-6">
+                    <button
+                      onClick={() => navigate('/appointments')}
+                      className="w-full flex items-center justify-center px-5 py-3 text-on-primary font-medium bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus-ring-ring focus-ring-offset-2"
+                    >
+                      <span className="mr-2">📅</span>
+                      Schedule Treatment
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
