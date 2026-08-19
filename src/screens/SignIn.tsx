@@ -51,7 +51,7 @@ export default function SignIn() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-primary-50 to-secondary-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-xs">
         {/* Card */}
         <div className="bg-card rounded-lg shadow-lg p-8 space-y-6">
@@ -168,6 +168,59 @@ export default function SignIn() {
             </a>
           </p>
         </div>
+
+        {/* TOP NAV BAR */}
+        <nav className="bg-primary text-on-primary">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between py-4">
+            {/* Left: circular avatar image placeholder */}
+            <div className="flex items-center space-x-3">
+              <div className="h-10 w-10 rounded-full bg-on-primary/20 flex items-center justify-center">
+                <span className="text-on-primary">A</span>
+              </div>
+              <div className="hidden md:flex space-x-4 text-sm font-medium">
+                {/* Nav links: Home / History / Chart / Settings */}
+                <button
+                  onClick={() => navigate('/', { replace: true })}
+                  className="hover:text-on-primary/80 transition-colors p-1"
+                >
+                  Home
+                </button>
+                <button
+                  onClick={() => navigate('/records', { replace: true })}
+                  className="hover:text-on-primary/80 transition-colors p-1"
+                >
+                  History
+                </button>
+                <button
+                  onClick={() => navigate('/tooth-chart', { replace: true })}
+                  className="text-on-primary bg-on-primary/20 px-3 py-1 rounded-full"
+                >
+                  Chart
+                </button>
+                <button
+                  onClick={() => navigate('/share-access', { replace: true })}
+                  className="hover:text-on-primary/80 transition-colors p-1"
+                >
+                  Settings
+                </button>
+              </div>
+            </div>
+
+            {/* Center: DentalTracker wordmark */}
+            <div className="flex items-center">
+              <h1 className="text-2xl font-heading text-on-primary">
+                DentalTracker
+              </h1>
+            </div>
+
+            {/* Right: lock icon */}
+            <div className="flex items-center">
+              <div className="h-8 w-8 flex items-center justify-center bg-on-primary/20 rounded-full">
+                <span className="text-on-primary">🔒</span>
+              </div>
+            </div>
+          </div>
+        </nav>
 
         {/* Footer Links */}
         <div className="mt-6 text-center text-xs text-on-background/50">

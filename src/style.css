@@ -80,6 +80,11 @@
   --color-destructive: #ba1a1a;
   --color-on-destructive: #ffffff;
   --color-ring: #000000;
+  --color-info-container: #dbeafe;
+  --color-on-info-container: #1e3a8a;
+  --color-surface: #f8f9ff;
+  --color-surface-container-low: #eff4ff;
+  --color-on-surface-variant: #64748b;
 
   --font-heading: Inter;
   --font-body: Inter;
@@ -111,4 +116,6 @@
   --radius-lg: 1rem;
   --radius-xl: 1.5rem;
   --radius-full: 9999px;
+
+  --spacing-margin-mobile: 1rem;
 }

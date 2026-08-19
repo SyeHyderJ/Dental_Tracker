@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 import { Bell, Loader2 } from 'lucide-react';
 
 export default function CheckEmail() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { resend } = useAuth();
   const [email, setEmail] = useState<string>('');
   const [resendLoading, setResendLoading] = useState(false);
@@ -50,59 +51,114 @@ export default function CheckEmail() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-xl space-y-12">
-        {/* Logo and Tagline */}
-        <div className="text-center">
-          <div className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-indigo-600">
-            <Bell className="h-5 w-5 text-white" />
+    <>
+      {/* TOP NAV BAR */}
+      <nav className="bg-primary text-on-primary">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between py-4">
+          {/* Left: circular avatar image placeholder */}
+          <div className="flex items-center space-x-3">
+            <div className="h-10 w-10 rounded-full bg-on-primary/20 flex items-center justify-center">
+              <span className="text-on-primary">A</span>
+            </div>
+            <div className="hidden md:flex space-x-4 text-sm font-medium">
+              {/* Nav links: Home / History / Chart / Settings */}
+              <button
+                onClick={() => navigate('/', { replace: true })}
+                className="hover:text-on-primary/80 transition-colors p-1"
+              >
+                Home
+              </button>
+              <button
+                onClick={() => navigate('/records', { replace: true })}
+                className="hover:text-on-primary/80 transition-colors p-1"
+              >
+                History
+              </button>
+              <button
+                onClick={() => navigate('/tooth-chart', { replace: true })}
+                className="text-on-primary bg-on-primary/20 px-3 py-1 rounded-full"
+              >
+                Chart
+              </button>
+              <button
+                onClick={() => navigate('/create-account', { replace: true })}
+                className="hover:text-on-primary/80 transition-colors p-1"
+              >
+                Sign Up
+              </button>
+            </div>
           </div>
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            Check Your Email
-          </h2>
-          <p className="mt-4 text-xl text-gray-500">
-            We've sent a confirmation link to {email}. Click the link to activate your account, then sign in.
-          </p>
-        </div>
 
-        {/* Resend Message */}
-        {resendMessage && (
-          <div className={resendMessage.startsWith('Failed') ? 'bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-6' : 'bg-green-50 border-l-4 border-green-500 text-green-700 p-4 mb-6'} role="alert">
-            <p>{resendMessage}</p>
+          {/* Center: DentalTracker wordmark */}
+          <div className="flex items-center">
+            <h1 className="text-2xl font-heading text-on-primary">
+              DentalTracker
+            </h1>
           </div>
-        )}
 
-        {/* Resend Button */}
-        <div className="flex justify-center">
-          <button
-            onClick={handleResend}
-            disabled={resendLoading}
-            className={`w-full flex items-center justify-center px-5 py-3.5 text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-md transition-colors duration-200 ${resendLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            {resendLoading ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Sending...
-              </>
-            ) : (
-              'Resend confirmation email'
-            )}
-          </button>
+          {/* Right: lock icon */}
+          <div className="flex items-center">
+            <div className="h-8 w-8 flex items-center justify-center bg-on-primary/20 rounded-full">
+              <span className="text-on-primary">🔒</span>
+            </div>
+          </div>
         </div>
+      </nav>
 
-        {/* Footer */}
-        <div className="text-center text-xs text-gray-400">
-          <p>
-            Already confirmed?{' '}
-            <a
-              href="/sign-in"
-              className="font-medium text-indigo-600 hover:text-indigo-500"
+      <div className="min-h-screen bg-gradient-to-b from-primary-50 to-secondary-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-xl space-y-12">
+          {/* Logo and Tagline */}
+          <div className="text-center">
+            <div className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-indigo-600">
+              <Bell className="h-5 w-5 text-white" />
+            </div>
+            <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+              Check Your Email
+            </h2>
+            <p className="mt-4 text-xl text-gray-500">
+              We've sent a confirmation link to {email}. Click the link to activate your account, then sign in.
+            </p>
+          </div>
+
+          {/* Resend Message */}
+          {resendMessage && (
+            <div className={resendMessage.startsWith('Failed') ? 'bg-red-50 border border-red-200 text-red-700 p-4 mb-6' : 'bg-green-50 border border-green-200 text-green-700 p-4 mb-6'} role="alert">
+              <p>{resendMessage}</p>
+            </div>
+          )}
+
+          {/* Resend Button */}
+          <div className="flex justify-center">
+            <button
+              onClick={handleResend}
+              disabled={resendLoading}
+              className={`w-full flex items-center justify-center px-5 py-3.5 text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-md transition-colors duration-200 ${resendLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              Sign in
-            </a>
-          </p>
+              {resendLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                'Resend confirmation email'
+              )}
+            </button>
+          </div>
+
+          {/* Footer */}
+          <div className="text-center text-xs text-gray-400">
+            <p>
+              Already confirmed?{' '}
+              <a
+                href="/sign-in"
+                className="font-medium text-indigo-600 hover:text-indigo-500"
+              >
+                Sign in
+              </a>
+            </p>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

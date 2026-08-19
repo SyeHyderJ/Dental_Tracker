@@ -223,15 +223,30 @@ export default function ToothChart() {
             </div>
             <div className="hidden md:flex space-x-4 text-sm font-medium">
               {/* Nav links: Home / History / Chart / Settings */}
-              <a href="/" className="hover:text-on-primary/80 transition-colors">Home</a>
-              <a href="/records" className="hover:text-on-primary/80 transition-colors">History</a>
-              <a
-                href="/tooth-chart"
+              <button
+                onClick={() => navigate('/', { replace: true })}
+                className="hover:text-on-primary/80 transition-colors p-1"
+              >
+                Home
+              </button>
+              <button
+                onClick={() => navigate('/records', { replace: true })}
+                className="hover:text-on-primary/80 transition-colors p-1"
+              >
+                History
+              </button>
+              <button
+                onClick={() => navigate('/tooth-chart', { replace: true })}
                 className="text-on-primary bg-on-primary/20 px-3 py-1 rounded-full"
               >
                 Chart
-              </a>
-              <a href="/share-access" className="hover:text-on-primary/80 transition-colors">Settings</a>
+              </button>
+              <button
+                onClick={() => navigate('/share-access', { replace: true })}
+                className="hover:text-on-primary/80 transition-colors p-1"
+              >
+                Settings
+              </button>
             </div>
           </div>
 

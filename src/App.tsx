@@ -14,6 +14,7 @@ import Records from './screens/Records';
 import ShareAccess from './screens/ShareAccess';
 import ProviderDashboard from './screens/provider/ProviderDashboard';
 import PatientDetail from './screens/provider/PatientDetail';
+import Settings from './screens/Settings';
 
 function App() {
   const { user } = useAuth();
@@ -108,6 +109,15 @@ function App() {
           element={
             <ProtectedRoute>
               <ShareAccess />
+            </ProtectedRoute>
+          }
+        />
+        {/* Settings route */}
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
             </ProtectedRoute>
           }
         />

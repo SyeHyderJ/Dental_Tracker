@@ -68,7 +68,7 @@ export default function Records() {
 
   if (error) {
     return (
-      <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+      <div className="bg-red-50 border-l-2 border-red-500 text-red-700 p-4 mb-6" role="alert">
         <p>{error}</p>
       </div>
     );
@@ -114,7 +114,7 @@ export default function Records() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+          <div className="bg-red-50 border-l-2 border-red-500 text-red-700 p-4 mb-6" role="alert">
             <p>{error}</p>
           </div>
         )}
