@@ -1,121 +1,173 @@
 @import "tailwindcss";
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.reveal {
-  opacity: 0;
-  transform: translateY(20px);
-}
-
-.reveal-active {
-  animation: fadeInUp 0.6s ease-out forwards;
-}
-
-/* Animation delay utilities */
-.animation-delay-0 {
-  animation-delay: 0s;
-}
-
-.animation-delay-100 {
-  animation-delay: 0.1s;
-}
-
-.animation-delay-200 {
-  animation-delay: 0.2s;
-}
-
-.animation-delay-300 {
-  animation-delay: 0.3s;
-}
-
-.animation-delay-400 {
-  animation-delay: 0.4s;
-}
-
-.animation-delay-500 {
-  animation-delay: 0.5s;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .reveal-active {
-    animation: none;
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .animation-delay-0,
-  .animation-delay-100,
-  .animation-delay-200,
-  .animation-delay-300,
-  .animation-delay-400,
-  .animation-delay-500 {
-    animation-delay: 0s;
-  }
-}
+@import "@fontsource/outfit/400.css";
+@import "@fontsource/outfit/500.css";
+@import "@fontsource/outfit/600.css";
+@import "@fontsource/outfit/700.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
 
 @theme {
-  --color-primary: #0f172a;
-  --color-primary-container: #131b2e;
-  --color-on-primary: #ffffff;
-  --color-secondary: #0d9488;
-  --color-secondary-container: #86f2e4;
-  --color-on-secondary-container: #006f66;
-  --color-tertiary: #f8fafc;
-  --color-tertiary-container: #191c1e;
-  --color-background: #f8f9ff;
-  --color-on-background: #0b1c30;
+  --color-porcelain: #f3f5f7;
+  --color-background: #f3f5f7;
   --color-card: #ffffff;
-  --color-muted: #eff4ff;
-  --color-border: #76777d;
-  --color-outline-variant: #E2E8F0;
-  --color-destructive: #ba1a1a;
+  --color-ink: #1a2330;
+  --color-on-background: #1a2330;
+  --color-slate: #5c6b7a;
+  --color-muted: #5c6b7a;
+  --color-border: #dce3ea;
+  --color-outline-variant: #dce3ea;
+  --color-primary: #1f8a7a;
+  --color-on-primary: #ffffff;
+  --color-primary-soft: #e4f4f1;
+  --color-destructive: #c23b3b;
   --color-on-destructive: #ffffff;
-  --color-ring: #000000;
-  --color-info-container: #dbeafe;
-  --color-on-info-container: #1e3a8a;
-  --color-surface: #f8f9ff;
-  --color-surface-container-low: #eff4ff;
-  --color-on-surface-variant: #64748b;
+  --color-ring: #1f8a7a;
+  --color-surface: #f3f5f7;
+  --color-surface-container-low: #e8eef2;
+  --color-on-surface-variant: #5c6b7a;
+  --color-allergy: #c45c4a;
+  --color-allergy-soft: #f8e6e2;
+  --color-medication: #c4842a;
+  --color-medication-soft: #f8edd8;
+  --color-chart-cat: #1f8a7a;
+  --color-chart-soft: #e4f4f1;
+  --color-document: #5a6e82;
+  --color-document-soft: #e6ebf0;
+  --color-healthy: #2f8a62;
+  --color-healthy-soft: #e3f4ec;
+  --color-warning: #c45c4a;
+  --color-warning-soft: #f8e6e2;
+  --color-filling: #3d7a9a;
+  --color-filling-soft: #dceaf2;
+  --color-crown: #6b5b95;
+  --color-crown-soft: #ece7f5;
 
-  --font-heading: Inter;
-  --font-body: Inter;
+  --font-heading: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
 
-  --duration-100: 100ms;
-  --duration-125: 125ms;
-  --duration-150: 150ms;
-  --duration-160: 160ms;
-  --duration-200: 200ms;
-  --duration-250: 250ms;
-  --duration-300: 300ms;
-  --duration-400: 400ms;
-  --duration-500: 500ms;
-
-  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
-  --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
-
-  --translate-y-0-25: -0.0625rem; /* -1px */
-  --translate-y-0-5: -0.125rem;    /* -2px */
-
-  --scale-0-97: 0.97;
-  --scale-0-98: 0.98;
-  --scale-0-99: 0.99;
-
-  --radius-sm: 0.25rem;
-  --radius-default: 0.5rem;
+  --radius-sm: 0.5rem;
+  --radius-default: 0.75rem;
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
   --radius-xl: 1.5rem;
   --radius-full: 9999px;
 
-  --spacing-margin-mobile: 1rem;
+  --shadow-card: 0 8px 24px rgba(26, 35, 48, 0.06);
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+  background: var(--color-porcelain);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+body {
+  margin: 0;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+
+.field-input {
+  display: block;
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
+  color: var(--color-ink);
+  padding: 0.75rem 0.875rem;
+  font-size: 1rem;
+}
+
+.field-input::placeholder {
+  color: #7a8a99;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  border-radius: 0.75rem;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-weight: 600;
+  padding: 0.85rem 1.25rem;
+  border: none;
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #18786a;
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.75rem;
+  background: var(--color-card);
+  color: var(--color-ink);
+  font-weight: 600;
+  padding: 0.85rem 1.25rem;
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: var(--color-surface-container-low);
+}
+
+.btn-ghost {
+  background: transparent;
+  border: none;
+  color: var(--color-primary);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  background: var(--color-destructive);
+  color: white;
+  font-weight: 600;
+  padding: 0.6rem 1rem;
+  border: none;
+  cursor: pointer;
+}
+
+.surface-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-card);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary,
+  .btn-secondary {
+    transition: none;
+  }
 }

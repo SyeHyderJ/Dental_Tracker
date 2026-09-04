@@ -3,6 +3,8 @@ import React from 'react';
 import { useAuth } from '../lib/auth';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
+import AppShell from '../components/AppShell';
+import { ErrorBanner, Field, Spinner } from '../components/ui';
 
 export default function ToothChart() {
   const { user } = useAuth();
@@ -155,12 +157,11 @@ export default function ToothChart() {
   // Helper to get background class for a tooth based on condition
   const getToothBackgroundClass = (condition: string): string => {
     const c = condition.toLowerCase();
-    if (c === 'healthy') return 'bg-secondary-container/50';
-    if (c === 'filling') return 'bg-tertiary/50';
-    if (c === 'crown') return 'bg-secondary/50';
-    if (c === 'cavity' || c === 'extracted') return 'bg-destructive/50';
-    if (c === 'needs-attention') return 'bg-destructive/50';
-    return 'bg-muted/20';
+    if (c === 'healthy') return 'bg-healthy-soft text-healthy';
+    if (c === 'filling') return 'bg-filling-soft text-filling';
+    if (c === 'crown') return 'bg-crown-soft text-crown';
+    if (c === 'cavity' || c === 'extracted' || c === 'needs-attention') return 'bg-warning-soft text-warning';
+    return 'bg-surface-container-low text-ink';
   };
 
   // Helper to determine if we should show a dot indicator
@@ -185,34 +186,164 @@ export default function ToothChart() {
   const lowerTeethRow1 = Array.from({ length: 8 }, (_, i) => i + 17); // 17-24
   const lowerTeethRow2 = Array.from({ length: 8 }, (_, i) => i + 25); // 25-32
 
-  if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="animate-spin rounded-full border-4 border-t-indigo-600 w-12 h-12"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-50 text-red-700 p-4 mb-6" role="alert">
-        <p>{error}</p>
-      </div>
-    );
-  }
+  if (loading) return <Spinner />;
 
   if (!user) {
     navigate('/', { replace: true });
     return null;
   }
 
-  // Get last updated timestamp from records
   const lastUpdated = records.length > 0
-    ? new Date(records[0].date).toLocaleString()
-    : 'Never';
+    ? new Date(records[0].date).toLocaleDateString()
+    : 'No records yet';
+
+  const renderArch = (teeth: number[]) => (
+    <div className="grid grid-cols-8 gap-1.5">
+      {teeth.map((toothNumber) => {
+        const condition = getToothCondition(toothNumber);
+        const selected = selectedTooth === toothNumber;
+        return (
+          <button
+            key={toothNumber}
+            type="button"
+            onClick={() => handleToothSelect(toothNumber)}
+            className={`relative h-11 rounded-xl font-mono text-xs ${getToothBackgroundClass(condition)} ${
+              selected ? 'ring-2 ring-primary' : ''
+            }`}
+            aria-label={`Tooth ${toothNumber}: ${condition}`}
+          >
+            {toothNumber}
+            {shouldShowDot(condition) ? (
+              <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-warning" />
+            ) : null}
+          </button>
+        );
+      })}
+    </div>
+  );
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <AppShell title="Dental chart" subtitle={`Updated ${lastUpdated}`} active="chart">
+      {error ? <ErrorBanner>{error}</ErrorBanner> : null}
+
+      <div className="mb-4 flex rounded-full bg-surface-container-low p-1">
+        <button
+          type="button"
+          onClick={() => setViewMode('arch')}
+          className={`flex-1 rounded-full py-2 text-sm font-semibold ${viewMode === 'arch' ? 'bg-card text-ink' : 'text-slate'}`}
+        >
+          Arch
+        </button>
+        <button
+          type="button"
+          onClick={() => setViewMode('list')}
+          className={`flex-1 rounded-full py-2 text-sm font-semibold ${viewMode === 'list' ? 'bg-card text-ink' : 'text-slate'}`}
+        >
+          List
+        </button>
+      </div>
+
+      {viewMode === 'list' ? (
+        <div className="space-y-2">
+          {Array.from({ length: 32 }, (_, i) => i + 1).map((n) => (
+            <button
+              key={n}
+              type="button"
+              onClick={() => handleToothSelect(n)}
+              className="surface-card flex w-full items-center justify-between px-4 py-3 text-left"
+            >
+              <span className="font-mono text-sm">Tooth {n}</span>
+              <span className="text-sm capitalize text-slate">{getToothCondition(n)}</span>
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div className="surface-card space-y-5 p-4">
+          <p className="text-center text-xs font-medium text-slate">Upper arch</p>
+          {renderArch(upperTeethRow1)}
+          {renderArch(upperTeethRow2)}
+          <div className="h-px bg-border" />
+          <p className="text-center text-xs font-medium text-slate">Lower arch</p>
+          {renderArch(lowerTeethRow1)}
+          {renderArch(lowerTeethRow2)}
+          <div className="flex flex-wrap justify-center gap-4 pt-2 text-xs text-slate">
+            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-healthy" /> Healthy</span>
+            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-filling" /> Filling</span>
+            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-crown" /> Crown</span>
+            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-warning" /> Needs care</span>
+          </div>
+        </div>
+      )}
+
+      <div className="mt-5 surface-card p-4">
+        {!selectedTooth ? (
+          <p className="py-6 text-center text-sm text-slate">Select a tooth to add a record.</p>
+        ) : (
+          <>
+            <h2 className="font-heading text-xl font-semibold">Tooth {selectedTooth}</h2>
+            <p className="mt-1 font-mono text-sm text-slate">
+              {toothRecords.length > 0
+                ? `${toothRecords[0].condition} · ${new Date(toothRecords[0].date).toLocaleDateString()}`
+                : 'No records yet'}
+            </p>
+            {toothRecords[0]?.notes ? (
+              <p className="mt-3 rounded-xl bg-porcelain p-3 text-sm">{toothRecords[0].notes}</p>
+            ) : null}
+
+            <h3 className="mt-5 text-sm font-semibold">History</h3>
+            {toothRecords.length === 0 ? (
+              <p className="mt-2 text-sm text-slate">Nothing logged for this tooth.</p>
+            ) : (
+              <ul className="mt-2 space-y-2">
+                {toothRecords.map((record) => (
+                  <li key={record.id} className="rounded-xl bg-porcelain px-3 py-2">
+                    <p className="capitalize">{record.condition}</p>
+                    <p className="font-mono text-xs text-slate">{new Date(record.date).toLocaleDateString()}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+              <Field id="condition" label="Condition">
+                <select id="condition" value={formCondition} onChange={handleConditionChange} className="field-input">
+                  <option value="">Select a condition</option>
+                  <option value="healthy">Healthy</option>
+                  <option value="filling">Filling</option>
+                  <option value="crown">Crown</option>
+                  <option value="cavity">Cavity</option>
+                  <option value="extracted">Extracted</option>
+                  <option value="needs-attention">Needs attention</option>
+                </select>
+              </Field>
+              <Field id="notes" label="Notes">
+                <textarea id="notes" value={formNotes} onChange={handleNotesChange} className="field-input" rows={3} />
+              </Field>
+              <Field id="provider" label="Provider">
+                <input id="provider" value={formProvider} onChange={handleProviderChange} className="field-input" />
+              </Field>
+              <Field id="date" label="Date">
+                <input id="date" type="date" value={formDate} onChange={handleDateChange} className="field-input" />
+              </Field>
+              {formError ? <ErrorBanner>{formError}</ErrorBanner> : null}
+              {formSuccess ? <p className="text-sm text-healthy">Record saved.</p> : null}
+              <button type="submit" disabled={formLoading} className="btn-primary">
+                {formLoading ? 'Saving...' : 'Save record'}
+              </button>
+              <button type="button" className="btn-secondary w-full" onClick={() => navigate('/appointments')}>
+                Schedule visit
+              </button>
+            </form>
+          </>
+        )}
+      </div>
+    </AppShell>
+  );
+}
+
+function _unusedNavRemoved() {
+  return (
+    <div className="hidden">
       {/* TOP NAV BAR */}
       <nav className="bg-primary text-on-primary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between py-4">
@@ -500,7 +631,7 @@ export default function ToothChart() {
                   <div className="mt-6">
                     <form onSubmit={handleSubmit} className="space-y-4">
                       <div className="space-y-2">
-                        <label htmlFor="condition" className="block text-label-md font-medium text-on-background">
+                        <label htmlFor="condition" className="block text-sm font-medium text-on-background">
                           Condition
                         </label>
                         <select
@@ -519,7 +650,7 @@ export default function ToothChart() {
                         </select>
                       </div>
                       <div className="space-y-2">
-                        <label htmlFor="notes" className="block text-label-md font-medium text-on-background">
+                        <label htmlFor="notes" className="block text-sm font-medium text-on-background">
                           Notes (optional)
                         </label>
                         <textarea
@@ -531,7 +662,7 @@ export default function ToothChart() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <label htmlFor="provider" className="block text-label-md font-medium text-on-background">
+                        <label htmlFor="provider" className="block text-sm font-medium text-on-background">
                           Provider (optional)
                         </label>
                         <input

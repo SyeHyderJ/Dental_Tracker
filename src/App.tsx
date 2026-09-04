@@ -15,13 +15,17 @@ import ShareAccess from './screens/ShareAccess';
 import ProviderDashboard from './screens/provider/ProviderDashboard';
 import PatientDetail from './screens/provider/PatientDetail';
 import Settings from './screens/Settings';
+import WellnessQuizPreview from './screens/preview/WellnessQuizPreview';
 
 function App() {
   const { user } = useAuth();
   const [userRole, setUserRole] = useState<string>('');
 
+  console.log('App component rendering with user:', user ? user.email : 'null');
+
   // Fetch user's role from profiles when user changes
   useEffect(() => {
+    console.log('useEffect triggered with user:', user ? user.email : 'null');
     if (user) {
       const fetchRole = async () => {
         try {
@@ -32,8 +36,10 @@ function App() {
             .single();
           if (!error && data) {
             setUserRole(data.role);
+            console.log('User role fetched:', data.role);
           }
         } catch (err) {
+          console.error('Error fetching user role:', err);
           // If error, role remains unset (will default to patient behavior)
         }
       };
@@ -119,6 +125,13 @@ function App() {
             <ProtectedRoute>
               <Settings />
             </ProtectedRoute>
+          }
+        />
+        {/* Preview route for wellness quiz (no auth required for preview) */}
+        <Route
+          path="/preview/wellness-quiz"
+          element={
+            <WellnessQuizPreview />
           }
         />
         {/* Provider section */}
