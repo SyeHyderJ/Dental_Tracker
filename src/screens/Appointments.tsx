@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../lib/auth';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
-import BackButton from '../components/BackButton';
+import AppShell from '../components/AppShell';
+import { Spinner, ErrorBanner } from '../components/ui';
 
 export default function Appointments() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,16 +64,16 @@ export default function Appointments() {
     }
   }, [user]);
 
-  // Handle logout
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/', { replace: true });
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
+  if (loading) return <Spinner />;
 
+  if (error) return <ErrorBanner>{error}</ErrorBanner>;
+
+  if (!user) {
+    navigate('/', { replace: true });
+    return null;
+  }
+
+  
   // Handle selecting an appointment to edit
   const handleEditSelect = (appointment: any) => {
     setSelectedAppointment(appointment);
@@ -247,50 +248,130 @@ export default function Appointments() {
     (appt) => new Date(appt.appointment_date) < now
   );
 
-  if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="animate-spin rounded-full border-4 border-t-indigo-600 w-12 h-12"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
-        <p>{error}</p>
-      </div>
-    );
-  }
-
-  if (!user) {
-    navigate('/', { replace: true });
-    return null;
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 space-y-4 sm:space-y-0 sm:space-x-3">
-          <div className="flex items-center gap-4">
-            <BackButton />
-            <div className="text-center sm:text-left">
-              <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-                Appointments
-              </h1>
-              <p className="mt-2 text-sm text-gray-500 sm:mt-0">
-                Track your dental appointments and checkups
+    <AppShell title="Appointments" subtitle="Track your dental appointments and checkups" active="care">
+      {appointments.length === 0 ? (
+        <div className="space-y-6">
+          <p className="text-center text-sm text-slate">
+            No appointments yet. Schedule your first checkup.
+          </p>
+          <button
+            onClick={() => {
+              // Open add form by setting a dummy selected appointment
+              setSelectedAppointment({} as any);
+              setIsEditMode(false);
+              setFormDate('');
+              setFormTime('');
+              setFormProvider('');
+              setFormNotes('');
+              setFormError(null);
+              setFormSuccess(false);
+            }}
+            className="btn-primary w-full"
+          >
+            Schedule Appointment
+          </button>
+        </div>
+      ) : (
+        <>
+          {/* Upcoming Appointments */}
+          <div className="mb-6">
+            <h2 className="font-heading text-lg font-semibold">
+              Upcoming Appointments
+            </h2>
+            {upcomingAppointments.length === 0 ? (
+              <p className="text-sm text-slate">
+                No upcoming appointments.
               </p>
-            </div>
+            ) : (
+              <div className="space-y-4">
+                {upcomingAppointments.map((appt) => (
+                  <div key={appt.id} className="surface-card p-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-mono text-sm font-semibold">
+                          {appt.provider_name}
+                        </h3>
+                        <p className="text-sm text-slate">
+                          {new Date(appt.appointment_date).toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="flex space-x-2 text-sm">
+                        <button
+                          onClick={() => handleEditSelect(appt)}
+                          className="btn-secondary px-3 py-1 text-sm"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(appt.id)}
+                          className="btn-secondary px-3 py-1 text-sm text-destructive"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                    {appt.notes && (
+                      <p className="text-sm text-slate line-clamp-2">
+                        {appt.notes}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-          <div className="flex flex-col sm:flex-row w-full sm:w-auto space-y-3 sm:space-y-0 sm:space-x-3">
-            <button
-              onClick={() => navigate('/tooth-chart')}
-              className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Tooth Chart
-            </button>
+
+          {/* Past Appointments */}
+          <div className="mb-6">
+            <h2 className="font-heading text-lg font-semibold">
+              Past Appointments
+            </h2>
+            {pastAppointments.length === 0 ? (
+              <p className="text-sm text-slate">
+                No past appointments.
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {pastAppointments.map((appt) => (
+                  <div key={appt.id} className="surface-card p-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-mono text-sm font-semibold">
+                          {appt.provider_name}
+                        </h3>
+                        <p className="text-sm text-slate">
+                          {new Date(appt.appointment_date).toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="flex space-x-2 text-sm">
+                        <button
+                          onClick={() => handleEditSelect(appt)}
+                          className="btn-secondary px-3 py-1 text-sm"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(appt.id)}
+                          className="btn-secondary px-3 py-1 text-sm text-destructive"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                    {appt.notes && (
+                      <p className="text-sm text-slate line-clamp-2">
+                        {appt.notes}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Button to add new appointment */}
+          <div className="mt-6">
             <button
               onClick={() => {
                 // Open add form by setting a dummy selected appointment
@@ -303,256 +384,118 @@ export default function Appointments() {
                 setFormError(null);
                 setFormSuccess(false);
               }}
-              className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="btn-secondary w-full"
             >
-              Schedule Appointment
-            </button>
-            <button
-              onClick={handleLogout}
-              className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Sign Out
+              Schedule New Appointment
             </button>
           </div>
-        </div>
+        </>
+      )}
 
-        {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
-            <p>{error}</p>
-          </div>
-        )}
-
-        {/* Appointments List */}
-        <div className="mb-8">
-          {/* Upcoming Appointments */}
-          <div className="mb-6">
-            <h2 className="text-xl font-bold text-gray-900">
-              Upcoming Appointments
-            </h2>
-            {upcomingAppointments.length === 0 ? (
-              <p className="text-gray-500 italic">No upcoming appointments.</p>
-            ) : (
-              <div className="space-y-4">
-                {upcomingAppointments.map((appt) => (
-                  <div key={appt.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-medium text-gray-900">
-                          {appt.provider_name}
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                          {new Date(appt.appointment_date).toLocaleString()}
-                        </p>
-                      </div>
-                      <div className="flex space-x-2 text-sm">
-                        <button
-                          onClick={() => handleEditSelect(appt)}
-                          className="px-3 py-1 bg-indigo-100 text-indigo-800 rounded hover:bg-indigo-200"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(appt.id)}
-                          className="px-3 py-1 bg-red-100 text-red-800 rounded hover:bg-red-200"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                    {appt.notes && (
-                      <p className="mt-2 text-sm text-gray-600 line-clamp-2">
-                        {appt.notes}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Past Appointments */}
-          <div className="mb-6">
-            <h2 className="text-xl font-bold text-gray-900">
-              Past Appointments
-            </h2>
-            {pastAppointments.length === 0 ? (
-              <p className="text-gray-500 italic">No past appointments.</p>
-            ) : (
-              <div className="space-y-4">
-                {pastAppointments.map((appt) => (
-                  <div key={appt.id} className="border rounded-lg p-4 bg-gray-50">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-medium text-gray-900">
-                          {appt.provider_name}
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                          {new Date(appt.appointment_date).toLocaleString()}
-                        </p>
-                      </div>
-                      <div className="flex space-x-2 text-sm">
-                        <button
-                          onClick={() => handleEditSelect(appt)}
-                          className="px-3 py-1 bg-indigo-100 text-indigo-800 rounded hover:bg-indigo-200"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(appt.id)}
-                          className="px-3 py-1 bg-red-100 text-red-800 rounded hover:bg-red-200"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                    {appt.notes && (
-                      <p className="mt-2 text-sm text-gray-600 line-clamp-2">
-                        {appt.notes}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Empty state for no appointments at all */}
-          {appointments.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-xl text-gray-500">
-                No appointments yet. Schedule your first checkup.
-              </p>
+      {/* Add/Edit Appointment Modal */}
+      {selectedAppointment !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="surface-card w-full max-w-md p-6">
+            <div className="flex justify-between items-start mb-4">
+              <h2 className="font-heading text-lg font-semibold">
+                {isEditMode ? 'Edit Appointment' : 'Schedule Appointment'}
+              </h2>
               <button
-                onClick={() => {
-                  // Open add form by setting a dummy selected appointment
-                  setSelectedAppointment({} as any);
-                  setIsEditMode(false);
-                  setFormDate('');
-                  setFormTime('');
-                  setFormProvider('');
-                  setFormNotes('');
-                  setFormError(null);
-                  setFormSuccess(false);
-                }}
-                className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700"
+                onClick={handleModalClose}
+                className="btn-secondary"
               >
-                Schedule Appointment
+                ✕
               </button>
             </div>
-          )}
-        </div>
 
-        {/* Add/Edit Appointment Modal */}
-        {selectedAppointment !== null && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
-              <div className="flex justify-between items-start mb-4">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {isEditMode ? 'Edit Appointment' : 'Schedule Appointment'}
-                </h2>
-                <button
-                  onClick={handleModalClose}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ��� � � ✕
-                </button>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="provider" className="block text-sm font-medium text-ink">
+                  Provider Name
+                </label>
+                <input
+                  id="provider"
+                  type="text"
+                  value={formProvider}
+                  onChange={e => setFormProvider(e.target.value)}
+                  className="field-input"
+                />
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label htmlFor="provider" className="block text-sm font-medium text-gray-700 mb-2">
-                    Provider Name
-                  </label>
-                  <input
-                    id="provider"
-                    type="text"
-                    value={formProvider}
-                    onChange={e => setFormProvider(e.target.value)}
-                    className="block w-full rounded-md border-0 px-4 py-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
-                  />
-                </div>
+              <div>
+                <label htmlFor="date" className="block text-sm font-medium text-ink">
+                  Date
+                </label>
+                <input
+                  id="date"
+                  type="date"
+                  value={formDate}
+                  onChange={handleDateChange}
+                  className="field-input"
+                />
+              </div>
 
-                <div>
-                  <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-2">
-                    Date
-                  </label>
-                  <input
-                    id="date"
-                    type="date"
-                    value={formDate}
-                    onChange={handleDateChange}
-                    className="block w-full rounded-md border-0 px-4 py-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
-                  />
-                </div>
+              <div>
+                <label htmlFor="time" className="block text-sm font-medium text-ink">
+                  Time
+                </label>
+                <select
+                  id="time"
+                  value={formTime}
+                  onChange={handleTimeChange}
+                  className="field-input"
+                >
+                  <option value="">Select time</option>
+                  {timeOptions.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-                <div>
-                  <label htmlFor="time" className="block text-sm font-medium text-gray-700 mb-2">
-                    Time
-                  </label>
-                  <select
-                    id="time"
-                    value={formTime}
-                    onChange={handleTimeChange}
-                    className="block w-full rounded-md border-0 px-4 py-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
-                  >
-                    <option value="">Select time</option>
-                    {timeOptions.map(option => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              <div>
+                <label htmlFor="notes" className="block text-sm font-medium text-ink">
+                  Notes (optional)
+                </label>
+                <textarea
+                  id="notes"
+                  value={formNotes}
+                  onChange={handleNotesChange}
+                  rows={3}
+                  maxLength={500}
+                  className="field-input"
+                />
+              </div>
 
-                <div>
-                  <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-2">
-                    Notes (optional)
-                  </label>
-                  <textarea
-                    id="notes"
-                    value={formNotes}
-                    onChange={handleNotesChange}
-                    rows={3}
-                    maxLength={500}
-                    className="block w-full rounded-md border-0 px-4 py-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
-                  />
-                </div>
+              {formError && <ErrorBanner>{formError}</ErrorBanner>}
 
-                {formError && (
-                  <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4" role="alert">
-                    <p>{formError}</p>
-                  </div>
-                )}
+              {formSuccess && (
+                <p className="text-sm text-healthy">
+                  Appointment saved successfully!
+                </p>
+              )}
 
-                {formSuccess && (
-                  <div className="bg-green-50 border-l-4 border-green-500 text-green-700 p-4" role="alert">
-                    <p>Appointment saved successfully!</p>
-                  </div>
-                )}
-
-                <div className="pt-4">
-                  <button
-                    type="submit"
-                    disabled={formLoading}
-                    className={`w-full flex items-center justify-center px-5 py-3.5 text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-md ${formLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  >
-                    {formLoading ? (
-                      <>
-                        <svg className="h-4 w-4 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-14.736 0m14.736 6a8.003 8.003 0 00-14.736 0m14.736 0A8.001 8.001 0 1022.582 16m0 0h5.418m0 0a8.003 8.003 0 01-14.736 0z"></path>
-                        </svg>
-                        Saving...
-                      </>
-                    ) : (
-                      isEditMode ? 'Update Appointment' : 'Schedule Appointment'
-                    )}
-                  </button>
-                </div>
-              </form>
-            </div>
+              <div className="pt-4">
+                <button
+                  type="submit"
+                  disabled={formLoading}
+                  className="btn-primary"
+                >
+                  {formLoading ? 'Saving...' : (isEditMode ? 'Update Appointment' : 'Schedule Appointment')}
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary w-full mt-3"
+                  onClick={handleModalClose}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
-        )}
-      </div>
-    </div>
+        </div>
+      )}
+    </AppShell>
   );
 }

@@ -9,21 +9,17 @@ import {
   Database,
   Download,
   Trash2,
-  ChevronRight,
-  Home,
-  History,
-  Activity,
-  Settings as SettingsIcon
+  ChevronRight
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import AppShell from '../components/AppShell';
 
 export default function Settings() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [userData, setUserData] = useState<any>(null);
   const [exportLoading, setExportLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string>(''); // For confirmation input
@@ -274,32 +270,7 @@ export default function Settings() {
   }
 
   return (
-    <div className="bg-surface text-primary font-sans min-h-screen pb-32">
-      {/* Header */}
-      <header className="px-6 pt-8 pb-6">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden border border-slate-300">
-              {userData?.avatar_url ? (
-                <img
-                  src={userData.avatar_url}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="flex items-center justify-center bg-primary/20 text-on-primary">
-                  <Activity className="h-5 w-5" />
-                </div>
-              )}
-            </div>
-            <span className="font-bold tracking-tight">DentalTracker</span>
-          </div>
-          <span className="material-symbols-outlined text-slate-900">lock</span>
-        </div>
-        <h1 className="text-3xl font-bold text-slate-900">Security & Settings</h1>
-        <p className="text-slate-500 mt-2">Manage your account preferences and security protocols.</p>
-      </header>
-
+    <AppShell title="Security & Settings" subtitle="Manage your account preferences and security protocols." active="you">
       <main className="px-4 space-y-6">
         {/* Security Audit Card */}
         <section className="bg-slate-50/50 border border-slate-200 rounded-2xl p-6 flex flex-col items-center text-center">
@@ -429,45 +400,6 @@ export default function Settings() {
           </div>
         </section>
       </main>
-
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 w-full bg-card border-t border-slate-100 px-6 pb-6 pt-3 flex justify-around items-center z-50">
-        <button
-          className="flex flex-col items-center gap-1 text-slate-400 p-2"
-          onClick={() => navigate('/dashboard')}
-        >
-          <Home className="h-4 w-4" />
-          <span className="text-[10px] font-bold">Home</span>
-        </button>
-
-        <button
-          className="flex flex-col items-center gap-1 text-slate-400 p-2"
-          onClick={() => navigate('/records')}
-        >
-          <History className="h-4 w-4" />
-          <span className="text-[10px] font-bold">History</span>
-        </button>
-
-        <button
-          className="flex flex-col items-center gap-1 text-slate-400 p-2"
-          onClick={() => navigate('/tooth-chart')}
-        >
-          <Activity className="h-4 w-4" />
-          <span className="text-[10px] font-bold">Chart</span>
-        </button>
-
-        <button
-          className="flex flex-col items-center gap-1 text-slate-900"
-          onClick={() => {
-            // Settings is current page - no navigation needed
-          }}
-        >
-          <div className="bg-slate-900 text-white p-2 rounded-xl">
-            <SettingsIcon className="h-4 w-4" />
-          </div>
-          <span className="text-[10px] font-bold">Settings</span>
-        </button>
-      </nav>
-    </div>
+    </AppShell>
   );
 }
