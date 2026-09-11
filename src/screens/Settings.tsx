@@ -12,7 +12,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import AppShell from '../components/AppShell';
 
 export default function Settings() {
@@ -30,13 +30,11 @@ export default function Settings() {
       const fetchUserData = async () => {
         try {
           setLoading(true);
-          const { data } = await supabase
+          await supabase
             .from('profiles')
             .select('*')
             .eq('id', user.id)
             .single();
-
-          if (data) setUserData(data);
         } catch (err: any) {
           setError(err.message);
         } finally {
@@ -117,7 +115,7 @@ export default function Settings() {
         ['Created At:', userData?.created_at ? new Date(userData.created_at).toLocaleString() : 'N/A']
       ];
 
-      doc.autoTable({
+      autoTable(doc, {
         startY: yPosition,
         head: [],
         body: patientInfo,
@@ -149,7 +147,7 @@ export default function Settings() {
           record.provider_name || 'N/A'
         ]);
 
-        doc.autoTable({
+        autoTable(doc, {
           startY: yPosition,
           head: [['Date', 'Tooth #', 'Surface', 'Procedure', 'Notes', 'Provider']],
           body: recordsData,
@@ -188,7 +186,7 @@ export default function Settings() {
           appt.notes || ''
         ]);
 
-        doc.autoTable({
+        autoTable(doc, {
           startY: yPosition,
           head: [['Date/Time', 'Type', 'Status', 'Provider', 'Notes']],
           body: appointmentsData,
