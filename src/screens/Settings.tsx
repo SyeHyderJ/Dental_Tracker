@@ -269,68 +269,92 @@ export default function Settings() {
 
   return (
     <AppShell title="Security & Settings" subtitle="Manage your account preferences and security protocols." active="you">
-      <main className="px-4 space-y-6">
+      <div className="space-y-6">
         {/* Security Audit Card */}
-        <section className="bg-slate-50/50 border border-slate-200 rounded-2xl p-6 flex flex-col items-center text-center">
-          <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 mb-4">
+        <section className="surface-card flex flex-col items-center text-center p-6">
+          <div className="w-12 h-12 bg-primary-soft rounded-full flex items-center justify-center text-primary mb-4">
             <ShieldCheck className="h-5 w-5" />
           </div>
-          <h2 className="text-xl font-bold text-slate-900">Security Audit Passed</h2>
-          <p className="text-sm text-slate-500 mt-1 mb-6">Core systems hardened and encrypted (AES-256).</p>
-          <button className="bg-[#005c53] text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity">
+          <h2 className="text-xl font-bold text-ink">Security Audit Passed</h2>
+          <p className="text-sm text-slate mt-1 mb-6">Core systems hardened and encrypted (AES-256).</p>
+          <button
+            type="button"
+            onClick={() => navigate('/security-log')}
+            className="bg-primary text-on-primary px-6 py-2.5 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity"
+          >
             View Log
           </button>
         </section>
 
         {/* Security Section */}
-        <section className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
-          <div className="px-6 py-5 border-b border-slate-100 flex items-center gap-3">
-            <Shield className="h-5 w-5 text-slate-900" />
+        <section className="surface-card overflow-hidden">
+          <div className="px-6 py-5 border-b border-border flex items-center gap-3">
+            <Shield className="h-5 w-5 text-ink" />
             <h3 className="font-bold text-lg">Security</h3>
           </div>
-          <div className="divide-y divide-slate-50">
-            <button className="w-full px-6 py-5 flex items-center justify-between hover:bg-slate-50 transition-colors text-left group">
+          <div className="divide-y divide-border">
+            <button
+              type="button"
+              onClick={() => navigate('/mfa')}
+              className="w-full px-6 py-5 flex items-center justify-between hover:bg-surface-container-low transition-colors text-left group"
+            >
               <div>
-                <div className="font-bold text-slate-900">Multi-Factor Authentication (MFA)</div>
-                <div className="text-sm text-slate-500 mt-0.5">Enhance account security with a second step.</div>
+                <div className="font-bold text-ink">Multi-Factor Authentication (MFA)</div>
+                <div className="text-sm text-slate mt-0.5">Enhance account security with a second step.</div>
               </div>
-              <ChevronRight className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 transition-transform" />
+              <ChevronRight className="material-symbols-outlined text-slate group-hover:translate-x-1 transition-transform" />
             </button>
-            <button className="w-full px-6 py-5 flex items-center justify-between hover:bg-slate-50 transition-colors text-left group">
+            <button
+              type="button"
+              onClick={() => navigate('/change-password')}
+              className="w-full px-6 py-5 flex items-center justify-between hover:bg-surface-container-low transition-colors text-left group"
+            >
               <div>
-                <div className="font-bold text-slate-900">Change Password</div>
-                <div className="text-sm text-slate-500 mt-0.5">Update your login credentials securely.</div>
+                <div className="font-bold text-ink">Change Password</div>
+                <div className="text-sm text-slate mt-0.5">Update your login credentials securely.</div>
               </div>
-              <ChevronRight className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 transition-transform" />
+              <ChevronRight className="material-symbols-outlined text-slate group-hover:translate-x-1 transition-transform" />
             </button>
-            <button className="w-full px-6 py-5 flex items-center justify-between hover:bg-slate-50 transition-colors text-left group">
+            <button
+              type="button"
+              onClick={() => navigate('/session-logs')}
+              className="w-full px-6 py-5 flex items-center justify-between hover:bg-surface-container-low transition-colors text-left group"
+            >
               <div>
-                <div className="font-bold text-slate-900">Session Logs</div>
-                <div className="text-sm text-slate-500 mt-0.5">Review recent sign-ins and active sessions.</div>
+                <div className="font-bold text-ink">Session Logs</div>
+                <div className="text-sm text-slate mt-0.5">Review recent sign-ins and active sessions.</div>
               </div>
-              <ChevronRight className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 transition-transform" />
+              <ChevronRight className="material-symbols-outlined text-slate group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
         </section>
 
         {/* App Preferences Section */}
-        <section className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
-          <div className="px-6 py-5 border-b border-slate-100 flex items-center gap-3">
-            <Settings2 className="h-5 w-5 text-slate-900" />
+        <section className="surface-card overflow-hidden">
+          <div className="px-6 py-5 border-b border-border flex items-center gap-3">
+            <Settings2 className="h-5 w-5 text-ink" />
             <h3 className="font-bold text-lg">App Preferences</h3>
           </div>
-          <div className="divide-y divide-slate-50">
-            <button className="w-full px-6 py-5 flex items-center justify-between hover:bg-slate-50 transition-colors text-left group">
-              <div className="font-bold text-slate-900">Notifications</div>
-              <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 transition-transform">
+          <div className="divide-y divide-border">
+            <button
+              type="button"
+              onClick={() => navigate('/notifications')}
+              className="w-full px-6 py-5 flex items-center justify-between hover:bg-surface-container-low transition-colors text-left group"
+            >
+              <div className="font-bold text-ink">Notifications</div>
+              <span className="material-symbols-outlined text-slate group-hover:translate-x-1 transition-transform">
                 ChevronRight
               </span>
             </button>
-            <button className="w-full px-6 py-5 flex items-center justify-between hover:bg-slate-50 transition-colors text-left group">
-              <div className="font-bold text-slate-900">Appearance</div>
+            <button
+              type="button"
+              onClick={() => navigate('/appearance')}
+              className="w-full px-6 py-5 flex items-center justify-between hover:bg-surface-container-low transition-colors text-left group"
+            >
+              <div className="font-bold text-ink">Appearance</div>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-500">Light</span>
-                <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 transition-transform">
+                <span className="text-sm text-slate">Light</span>
+                <span className="material-symbols-outlined text-slate group-hover:translate-x-1 transition-transform">
                   ChevronRight
                 </span>
               </div>
@@ -339,23 +363,23 @@ export default function Settings() {
         </section>
 
         {/* Data Governance Section */}
-        <section className="bg-blue-50/50 border border-blue-100 rounded-2xl overflow-hidden shadow-sm">
-          <div className="px-6 py-5 border-b border-blue-100 flex items-center gap-3">
-            <Database className="h-5 w-5 text-slate-900" />
-            <h3 className="font-bold text-lg text-slate-900">Data Governance</h3>
+        <section className="bg-primary-soft border border-border rounded-2xl overflow-hidden">
+          <div className="px-6 py-5 border-b border-border flex items-center gap-3">
+            <Database className="h-5 w-5 text-ink" />
+            <h3 className="font-bold text-lg text-ink">Data Governance</h3>
           </div>
           <div className="p-6">
-            <p className="text-sm text-slate-600 mb-6 leading-relaxed">You own your clinical data. Manage it securely here.</p>
+            <p className="text-sm text-slate mb-6 leading-relaxed">You own your clinical data. Manage it securely here.</p>
             <div className="space-y-6">
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-slate-900 text-white rounded-full flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 bg-ink text-white rounded-full flex items-center justify-center shrink-0">
                   <Download className="text-xl" />
                 </div>
                 <div>
-                  <div className="font-bold text-slate-900">Export My Health Data</div>
-                  <p className="text-[13px] text-slate-500 mt-1 leading-normal">Download a complete, encrypted archive of your charts, history, and records in JSON/CSV format.</p>
+                  <div className="font-bold text-ink">Export My Health Data</div>
+                  <p className="text-[13px] text-slate mt-1 leading-normal">Download a complete, encrypted archive of your charts, history, and records in JSON/CSV format.</p>
                   <button
-                    className="mt-4 bg-black text-white px-5 py-2 rounded-lg text-xs font-bold hover:opacity-80 transition-opacity"
+                    className="mt-4 bg-primary text-on-primary px-5 py-2 rounded-lg text-xs font-bold hover:opacity-80 transition-opacity"
                     onClick={handleExport}
                     disabled={exportLoading}
                   >
@@ -363,15 +387,15 @@ export default function Settings() {
                   </button>
                 </div>
               </div>
-              <div className="flex items-start gap-4 border-t border-blue-100 pt-6">
-                <div className="w-10 h-10 bg-red-100 text-red-600 rounded-full flex items-center justify-center shrink-0">
+              <div className="flex items-start gap-4 border-t border-border pt-6">
+                <div className="w-10 h-10 bg-destructive/10 text-destructive rounded-full flex items-center justify-center shrink-0">
                   <Trash2 className="text-xl" />
                 </div>
                 <div>
-                  <div className="font-bold text-red-600">Delete Account</div>
-                  <p className="text-[13px] text-slate-500 mt-1 leading-normal">Permanently remove your account and purge all associated data from our servers. This action cannot be undone.</p>
+                  <div className="font-bold text-destructive">Delete Account</div>
+                  <p className="text-[13px] text-slate mt-1 leading-normal">Permanently remove your account and purge all associated data from our servers. This action cannot be undone.</p>
                   {deleteLoading ? (
-                    <button className="mt-4 bg-[#c8231a] text-white px-5 py-2 rounded-lg text-xs font-bold hover:opacity-90 transition-opacity" disabled>
+                    <button className="mt-4 bg-destructive text-on-destructive px-5 py-2 rounded-lg text-xs font-bold hover:opacity-90 transition-opacity" disabled>
                       Deleting...
                     </button>
                   ) : (
@@ -381,10 +405,10 @@ export default function Settings() {
                         value={deleteConfirm}
                         onChange={(e) => setDeleteConfirm(e.target.value)}
                         placeholder="Type DELETE to confirm"
-                        className="mt-2 block w-full px-3 py-2 border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus-ring-offset-2 focus-ring-indigo-500"
+                        className="mt-2 block w-full px-3 py-2 border border-border rounded-md text-ink focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring"
                       />
                       <button
-                        className="mt-4 bg-[#c8231a] text-white px-5 py-2 rounded-lg text-xs font-bold hover:opacity-90 transition-opacity"
+                        className="mt-4 bg-destructive text-on-destructive px-5 py-2 rounded-lg text-xs font-bold hover:opacity-90 transition-opacity"
                         onClick={handleDelete}
                         disabled={deleteConfirm.toUpperCase() !== 'DELETE'}
                       >
@@ -397,7 +421,7 @@ export default function Settings() {
             </div>
           </div>
         </section>
-      </main>
+      </div>
     </AppShell>
   );
 }

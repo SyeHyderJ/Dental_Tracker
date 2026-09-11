@@ -16,6 +16,7 @@ import ProviderDashboard from './screens/provider/ProviderDashboard';
 import PatientDetail from './screens/provider/PatientDetail';
 import Settings from './screens/Settings';
 import WellnessQuizPreview from './screens/preview/WellnessQuizPreview';
+import UnderConstruction from './components/UnderConstruction';
 
 function App() {
   const { user } = useAuth();
@@ -124,6 +125,80 @@ function App() {
           element={
             <ProtectedRoute>
               <Settings />
+            </ProtectedRoute>
+          }
+        />
+        {/* Under-construction placeholders — Records sub-sections */}
+        <Route
+          path="/records/allergies"
+          element={
+            <ProtectedRoute>
+              <UnderConstruction feature="Allergies" active="records" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/records/medications"
+          element={
+            <ProtectedRoute>
+              <UnderConstruction feature="Medications" active="records" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/records/documents"
+          element={
+            <ProtectedRoute>
+              <UnderConstruction feature="Documents" active="records" />
+            </ProtectedRoute>
+          }
+        />
+        {/* Under-construction placeholders — Settings stubs */}
+        <Route
+          path="/mfa"
+          element={
+            <ProtectedRoute>
+              <UnderConstruction feature="Multi-Factor Authentication" active="you" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/change-password"
+          element={
+            <ProtectedRoute>
+              <UnderConstruction feature="Change Password" active="you" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/session-logs"
+          element={
+            <ProtectedRoute>
+              <UnderConstruction feature="Session Logs" active="you" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <UnderConstruction feature="Notifications" active="you" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/appearance"
+          element={
+            <ProtectedRoute>
+              <UnderConstruction feature="Appearance" active="you" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/security-log"
+          element={
+            <ProtectedRoute>
+              <UnderConstruction feature="Security Log" active="you" />
             </ProtectedRoute>
           }
         />
