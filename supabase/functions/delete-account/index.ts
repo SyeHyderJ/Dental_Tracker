@@ -55,35 +55,40 @@ serve(async (req) => {
   try {
     // Step 1: Delete provider_connections where user is patient (patient_id = user)
     try {
-      await adminClient.from('provider_connections').delete().eq('patient_id', userId);
+      const { error } = await adminClient.from('provider_connections').delete().eq('patient_id', userId);
+      if (error) throw error;
     } catch (err: any) {
       throw new Error(`Failed at provider_connections (patient): ${err.message}`);
     }
 
     // Step 2: Delete provider_connections where user is provider (provider_id = user)
     try {
-      await adminClient.from('provider_connections').delete().eq('provider_id', userId);
+      const { error } = await adminClient.from('provider_connections').delete().eq('provider_id', userId);
+      if (error) throw error;
     } catch (err: any) {
       throw new Error(`Failed at provider_connections (provider): ${err.message}`);
     }
 
     // Step 3: Delete appointments
     try {
-      await adminClient.from('appointments').delete().eq('user_id', userId);
+      const { error } = await adminClient.from('appointments').delete().eq('user_id', userId);
+      if (error) throw error;
     } catch (err: any) {
       throw new Error(`Failed at appointments: ${err.message}`);
     }
 
     // Step 4: Delete tooth_records
     try {
-      await adminClient.from('tooth_records').delete().eq('user_id', userId);
+      const { error } = await adminClient.from('tooth_records').delete().eq('user_id', userId);
+      if (error) throw error;
     } catch (err: any) {
       throw new Error(`Failed at tooth_records: ${err.message}`);
     }
 
     // Step 5: Delete profiles
     try {
-      await adminClient.from('profiles').delete().eq('user_id', userId);
+      const { error } = await adminClient.from('profiles').delete().eq('id', userId);
+      if (error) throw error;
     } catch (err: any) {
       throw new Error(`Failed at profiles: ${err.message}`);
     }

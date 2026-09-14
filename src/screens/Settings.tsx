@@ -23,6 +23,7 @@ export default function Settings() {
   const [exportLoading, setExportLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string>(''); // For confirmation input
+  const [deleteError, setDeleteError] = useState<string | null>(null); // Scoped inline error for the delete flow
 
   // Fetch user profile data
   useEffect(() => {
@@ -224,21 +225,24 @@ export default function Settings() {
     if (!user) return;
     // Require user to type "DELETE" to confirm
     if (deleteConfirm.toUpperCase() !== 'DELETE') {
-      setError('Please type "DELETE" to confirm account deletion');
+      setDeleteError('Please type "DELETE" to confirm account deletion');
       return;
     }
     setDeleteLoading(true);
-    setError(null);
+    setDeleteError(null);
     try {
-      // Invoke the Edge Function for secure account deletion
-      await supabase.functions.invoke('delete-account');
-      // On success, sign out and redirect to home
+      // Invoke the Edge Function for secure account deletion.
+      // NOTE: functions.invoke() returns { data, error } and does NOT throw on
+      // a failed invocation — we must inspect the result, otherwise a failed
+      // deletion is silently swallowed and we'd log the user out believing it succeeded.
+      const { error: fnError } = await supabase.functions.invoke('delete-account');
+      if (fnError) {
+        throw new Error(fnError.message || 'Account deletion failed');
+      }
       await logout();
       navigate('/', { replace: true });
     } catch (err: any) {
-      // The Edge Function returns an error in the response body if it fails
-      // We can try to parse the error, but for now just show the message
-      setError(err.message || 'Account deletion failed');
+      setDeleteError(err.message || 'Account deletion failed');
     } finally {
       setDeleteLoading(false);
     }
@@ -254,9 +258,16 @@ export default function Settings() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="bg-red-50 border-l-2 border-red-500 text-red-700 p-6">
-          <p>{error}</p>
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <div className="bg-red-50 border-l-2 border-red-500 text-red-700 p-6 rounded-lg max-w-md w-full">
+          <p className="mb-4">{error}</p>
+          <button
+            type="button"
+            onClick={() => setError(null)}
+            className="bg-primary text-on-primary px-5 py-2 rounded-lg text-xs font-bold hover:opacity-90 transition-opacity"
+          >
+            Back to Settings
+          </button>
         </div>
       </div>
     );
@@ -407,6 +418,11 @@ export default function Settings() {
                         placeholder="Type DELETE to confirm"
                         className="mt-2 block w-full px-3 py-2 border border-border rounded-md text-ink focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring"
                       />
+                      {deleteError && (
+                        <p className="mt-2 text-xs font-medium text-destructive" role="alert">
+                          {deleteError}
+                        </p>
+                      )}
                       <button
                         className="mt-4 bg-destructive text-on-destructive px-5 py-2 rounded-lg text-xs font-bold hover:opacity-90 transition-opacity"
                         onClick={handleDelete}
