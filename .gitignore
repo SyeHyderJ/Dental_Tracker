@@ -56,3 +56,6 @@ test_security.mjs
 verbose.txt
 get_token.ps1
 provider_token.txt
+
+.vercel
+.env*
