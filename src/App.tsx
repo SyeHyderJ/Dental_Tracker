@@ -19,7 +19,7 @@ import WellnessQuizPreview from './screens/preview/WellnessQuizPreview';
 import UnderConstruction from './components/UnderConstruction';
 
 function App() {
-  const { user } = useAuth();
+  const { user, emailVerified } = useAuth();
   const [userRole, setUserRole] = useState<string>('');
 
   console.log('App component rendering with user:', user ? user.email : 'null');
@@ -52,12 +52,18 @@ function App() {
     if (!user) {
       return <Navigate to="/" replace />;
     }
+    if (!emailVerified) {
+      return <Navigate to="/check-email" replace />;
+    }
     return children;
   };
 
   const ProtectedProviderRoute = ({ children }: { children: React.ReactNode }) => {
     if (!user) {
       return <Navigate to="/" replace />;
+    }
+    if (!emailVerified) {
+      return <Navigate to="/check-email" replace />;
     }
     if (userRole !== 'provider') {
       return <Navigate to="/" replace />;
