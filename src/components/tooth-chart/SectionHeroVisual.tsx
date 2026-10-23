@@ -69,17 +69,17 @@ export default function SectionHeroVisual({ section, transitionClass = '' }: Sec
         </div>
 
         {/* Tooth type labels below */}
-        <div className="flex justify-center gap-2 sm:gap-3 pt-2" role="list" aria-label="Tooth type labels">
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-3 pt-2" role="list" aria-label="Tooth type labels">
           {displayTeeth.map((tooth) => (
             <div
               key={tooth.number}
-              className="flex flex-col items-center gap-1 text-center min-w-[50px]"
+              className="flex flex-col items-center gap-1 text-center flex-shrink-0 min-w-[44px] px-1"
               role="listitem"
             >
-              <span className={`text-xs font-medium ${tooth.typeColor}`}>
+              <span className={`text-xs sm:text-sm font-medium ${tooth.typeColor} whitespace-nowrap`}>
                 {tooth.typeLabel}
               </span>
-              <span className="text-[10px] font-mono text-slate/50">#{tooth.number}</span>
+              <span className="text-[10px] font-mono text-slate/50 whitespace-nowrap">#{tooth.number}</span>
             </div>
           ))}
         </div>
@@ -106,15 +106,15 @@ function ToothIllustration({
   isUpper: boolean;
   total: number;
 }) {
-  // Size based on tooth type
+  // Size based on tooth type - use relative sizing that scales with container
   const sizeMap = {
-    molar: { width: 56, height: 56 },
-    premolar: { width: 48, height: 52 },
-    canine: { width: 44, height: 56 },
-    incisor: { width: 40, height: 56 },
+    molar: { width: '100%', maxWidth: 72, height: 'auto', aspectRatio: 1 },
+    premolar: { width: '100%', maxWidth: 64, height: 'auto', aspectRatio: 1 },
+    canine: { width: '100%', maxWidth: 56, height: 'auto', aspectRatio: 1 },
+    incisor: { width: '100%', maxWidth: 48, height: 'auto', aspectRatio: 1 },
   };
 
-  const { width, height } = sizeMap[tooth.type as keyof typeof sizeMap] || { width: 48, height: 52 };
+  const size = sizeMap[tooth.type as keyof typeof sizeMap] || { width: '100%', maxWidth: 64, height: 'auto', aspectRatio: 1 };
   const scale = total > 5 ? 0.85 : 1; // Slightly smaller for anterior sections (6 teeth)
 
   return (
@@ -124,14 +124,21 @@ function ToothIllustration({
       role="listitem"
       aria-label={`Tooth ${tooth.number}: ${tooth.typeLabel}`}
     >
-      <div className="relative" style={{ width, height }}>
+      <div
+        className="relative"
+        style={{
+          width: size.width,
+          maxWidth: size.maxWidth,
+          aspectRatio: size.aspectRatio,
+        }}
+      >
         {/* Tooth SVG */}
         <svg viewBox="0 0 64 64" className="w-full h-full" aria-hidden="true">
           <ToothShape type={tooth.type} isUpper={isUpper} isRightSide={index < total / 2} />
         </svg>
 
         {/* Tooth number badge */}
-        <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-ink/80 text-on-background text-[10px] font-mono font-bold flex items-center justify-center">
+        <div className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-ink/80 text-on-background text-[9px] font-mono font-bold flex items-center justify-center">
           {tooth.number}
         </div>
 
@@ -302,15 +309,14 @@ function ToothShape({
 
 /** Arch curve indicator showing upper/lower jaw shape */
 function ArchCurve({ isUpper, toothCount }: { isUpper: boolean; toothCount: number }) {
-  // Width scales with tooth count
-  const width = toothCount <= 5 ? 280 : 340;
+  // Use responsive width - 100% of container with max-width
+  const maxWidth = toothCount <= 5 ? 320 : 400;
 
   return (
     <svg
-      className="absolute bottom-0 left-1/2 -translate-x-1/2 pointer-events-none"
-      viewBox={`0 0 ${width} 24`}
-      width={width}
-      height={24}
+      className="absolute bottom-0 left-1/2 -translate-x-1/2 pointer-events-none w-full max-w-[320px] sm:max-w-[400px]"
+      viewBox={`0 0 ${maxWidth} 24`}
+      preserveAspectRatio="none"
       aria-hidden="true"
     >
       <defs>
@@ -322,7 +328,7 @@ function ArchCurve({ isUpper, toothCount }: { isUpper: boolean; toothCount: numb
       {isUpper ? (
         // Upper arch: curve downward (like roof of mouth)
         <path
-          d={`M0,20 Q${width / 2},4 ${width},20`}
+          d={`M0,20 Q${maxWidth / 2},4 ${maxWidth},20`}
           stroke="currentColor"
           strokeWidth="2"
           strokeDasharray="6 4"
@@ -332,7 +338,7 @@ function ArchCurve({ isUpper, toothCount }: { isUpper: boolean; toothCount: numb
       ) : (
         // Lower arch: curve upward (like jaw)
         <path
-          d={`M0,4 Q${width / 2},20 ${width},4`}
+          d={`M0,4 Q${maxWidth / 2},20 ${maxWidth},4`}
           stroke="currentColor"
           strokeWidth="2"
           strokeDasharray="6 4"

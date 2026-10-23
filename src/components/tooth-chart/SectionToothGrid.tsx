@@ -16,7 +16,7 @@ export default function SectionToothGrid({ section }: SectionToothGridProps) {
   return (
     <div className="space-y-4" role="region" aria-label={`${section.label} teeth`}>
       {/* Tooth grid - anatomically arranged */}
-      <div className="grid grid-cols-3 gap-2" role="list" aria-label={`${section.label} - ${teeth.length} teeth`}>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3" role="list" aria-label={`${section.label} - ${teeth.length} teeth`}>
         {teeth.map((toothNumber, index) => {
           const condition = getToothCondition(toothNumber);
           const isSelected = selectedTooth === toothNumber;
@@ -28,7 +28,7 @@ export default function SectionToothGrid({ section }: SectionToothGridProps) {
               key={toothNumber}
               type="button"
               onClick={() => selectTooth(toothNumber)}
-              className={`relative aspect-square min-h-[60px] rounded-xl font-mono text-sm
+              className={`relative aspect-square min-h-[50px] sm:min-h-[60px] lg:min-h-[70px] rounded-xl font-mono text-sm
                 ${getToothBackgroundClass(condition)}
                 ${isSelected ? 'ring-3 ring-primary ring-offset-2 ring-offset-card' : ''}
                 transition-all duration-200

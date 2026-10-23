@@ -66,18 +66,22 @@ function SectionCard({ section, onClick }: SectionCardProps) {
       </div>
 
       {/* Mini tooth preview - simplified shapes */}
-      <div className="flex items-center justify-center gap-1 mb-3" role="img" aria-label={`${section.teeth.length} teeth in this section`}>
+      <div className="flex items-center justify-center gap-1 sm:gap-1.5 mb-3" role="img" aria-label={`${section.teeth.length} teeth in this section`}>
         {section.teeth.map((toothNumber, index) => {
           const condition = getToothCondition(toothNumber);
           return (
             <div
               key={toothNumber}
-              className={`relative h-8 w-6 rounded-md transition-all duration-200 group-hover:scale-110
+              className={`relative transition-all duration-200 group-hover:scale-110
                 ${getToothBackgroundClass(condition)}`}
-              style={{ zIndex: section.teeth.length - index }}
+              style={{
+                zIndex: section.teeth.length - index,
+                width: 'clamp(28px, 6vw, 36px)',
+                height: 'clamp(36px, 8vw, 44px)',
+              }}
             >
               {shouldShowDot(condition) && (
-                <span className="absolute right-0.5 top-0.5 h-1.5 w-1.5 rounded-full bg-warning" />
+                <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-warning" />
               )}
               <span className="absolute inset-0 flex items-center justify-center text-[9px] font-mono text-ink/50">
                 {toothNumber}
@@ -140,7 +144,7 @@ export default function ToothChartOverview() {
         <h2 id="upper-heading" className="text-center text-xs font-medium text-slate mb-4">
           Upper Arch
         </h2>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {upperSections.map((section) => (
             <SectionCard key={section.id} section={section} onClick={navigateToSection} />
           ))}
@@ -148,7 +152,7 @@ export default function ToothChartOverview() {
       </section>
 
       {/* Divider */}
-      <div className="relative my-2">
+      <div className="relative my-2 sm:my-4">
         <div className="h-px bg-border" />
         <span className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 px-2 bg-porcelain text-xs text-slate">
           Lower Arch
@@ -158,7 +162,7 @@ export default function ToothChartOverview() {
       {/* Lower arch sections */}
       <section aria-labelledby="lower-heading">
         <h2 id="lower-heading" className="sr-only">Lower Arch</h2>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {lowerSections.map((section) => (
             <SectionCard key={section.id} section={section} onClick={navigateToSection} />
           ))}

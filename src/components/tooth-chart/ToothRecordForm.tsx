@@ -268,26 +268,26 @@ function SelectedToothVisual({
   isUpper: boolean;
 }) {
   return (
-    <div className="flex items-center justify-center gap-4 py-3 bg-surface-container-low rounded-xl" role="img" aria-label={`Tooth ${toothNumber}: ${typeLabel}`}>
+    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 py-3 bg-surface-container-low rounded-xl" role="img" aria-label={`Tooth ${toothNumber}: ${typeLabel}`}>
       {/* Tooth illustration */}
-      <div className="relative w-20 h-24 flex-shrink-0">
+      <div className="relative w-full max-w-xs sm:max-w-[120px] aspect-[5/6] sm:aspect-auto sm:h-[96px] flex-shrink-0">
         <svg viewBox="0 0 64 72" className="w-full h-full" aria-hidden="true">
           <SelectedToothShape type={type} isUpper={isUpper} />
         </svg>
         {/* Tooth number badge */}
-        <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-ink/80 text-on-background text-xs font-mono font-bold flex items-center justify-center">
+        <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-ink/80 text-on-background text-xs font-mono font-bold flex items-center justify-center">
           {toothNumber}
         </div>
         {/* Type color accent */}
         <div
-          className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-1.5 rounded-t"
+          className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-1.5 rounded-t"
           style={{ backgroundColor: `var(--color-${typeColor.replace('text-', '').replace('dark:text-', '')})` }}
           aria-hidden="true"
         />
       </div>
 
       {/* Tooth info */}
-      <div className="text-left">
+      <div className="text-center sm:text-left">
         <p className="font-heading text-lg font-semibold text-ink">Tooth {toothNumber}</p>
         <p className="mt-1 font-mono text-sm text-slate">
           {typeLabel} • {isUpper ? 'Upper' : 'Lower'} arch
