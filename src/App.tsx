@@ -94,7 +94,7 @@ function App() {
         />
         {/* Patient-only screens */}
         <Route
-          path="/tooth-chart"
+          path="/tooth-chart/*"
           element={
             <ProtectedRoute>
               <ToothChart />
