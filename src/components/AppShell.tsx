@@ -1,6 +1,7 @@
 import { Calendar, FolderOpen, Home, Settings, Smile } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { ReactNode } from 'react';
+import { useVisualViewport } from '../hooks/useVisualViewport';
 
 export type PatientTab = 'home' | 'chart' | 'records' | 'care' | 'you';
 
@@ -26,6 +27,7 @@ export default function AppShell({
   action?: ReactNode;
 }) {
   const navigate = useNavigate();
+  const keyboardOffset = useVisualViewport();
 
   return (
     <div className="min-h-[100dvh] bg-porcelain text-ink font-sans">
@@ -39,7 +41,14 @@ export default function AppShell({
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 pb-28 pt-5">{children}</main>
+      <main
+        className="mx-auto max-w-3xl px-4 pt-5 keyboard-aware safe-bottom"
+        style={{
+          transform: `translateY(-${keyboardOffset}px)`
+        }}
+      >
+        {children}
+      </main>
 
       <nav
         className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-sm"

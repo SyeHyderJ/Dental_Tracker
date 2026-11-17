@@ -1,4 +1,4 @@
-import { Loader2, X } from 'lucide-react';
+import { Loader2, X, ChevronDown } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 export function Spinner() {
@@ -66,11 +66,15 @@ export function Sheet({
   title,
   onClose,
   children,
+  isOpen = true,
 }: {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  isOpen?: boolean;
 }) {
+  if (!isOpen) return null;
+
   return (
     <div className="fixed inset-0 z-40 flex items-end justify-center bg-ink/40 p-0 sm:items-center sm:p-4">
       <div
@@ -88,6 +92,72 @@ export function Sheet({
         </div>
         {children}
       </div>
+    </div>
+  );
+}
+
+export interface SelectOption {
+  value: string;
+  label: string;
+}
+
+export interface SelectProps {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: SelectOption[];
+  placeholder?: string;
+  required?: boolean;
+  error?: string;
+}
+
+export function Select({
+  id,
+  label,
+  value,
+  onChange,
+  options,
+  placeholder,
+  required,
+  error,
+}: SelectProps) {
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    onChange(e.target.value);
+  };
+
+  return (
+    <div className="space-y-2">
+      <label htmlFor={id} className="block text-sm font-medium text-ink">
+        {label} {required && <span className="text-allergy" aria-hidden="true">*</span>}
+      </label>
+      <div className="relative">
+        <select
+          id={id}
+          value={value}
+          onChange={handleChange}
+          required={required}
+          className="field-input appearance-none pr-10 bg-card"
+          aria-invalid={error ? 'true' : 'false'}
+        >
+          {placeholder && (
+            <option value="" disabled>
+              {placeholder}
+            </option>
+          )}
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate pointer-events-none" />
+      </div>
+      {error && (
+        <p className="text-xs font-medium text-allergy" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

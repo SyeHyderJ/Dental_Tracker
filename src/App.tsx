@@ -11,6 +11,8 @@ import AuthCallback from './screens/AuthCallback';
 import ToothChart from './screens/ToothChart';
 import Appointments from './screens/Appointments';
 import Records from './screens/Records';
+import Allergies from './screens/Allergies';
+import Medications from './screens/Medications';
 import ShareAccess from './screens/ShareAccess';
 import ProviderDashboard from './screens/provider/ProviderDashboard';
 import PatientDetail from './screens/provider/PatientDetail';
@@ -134,12 +136,12 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* Under-construction placeholders — Records sub-sections */}
+        {/* Records sub-sections */}
         <Route
           path="/records/allergies"
           element={
             <ProtectedRoute>
-              <UnderConstruction feature="Allergies" active="records" />
+              <Allergies />
             </ProtectedRoute>
           }
         />
@@ -147,7 +149,15 @@ function App() {
           path="/records/medications"
           element={
             <ProtectedRoute>
-              <UnderConstruction feature="Medications" active="records" />
+              <Medications />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/records/documents"
+          element={
+            <ProtectedRoute>
+              <UnderConstruction feature="Documents" active="records" />
             </ProtectedRoute>
           }
         />

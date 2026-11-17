@@ -9,14 +9,20 @@ import {
   Database,
   Download,
   Trash2,
-  ChevronRight
+  ChevronRight,
+  Sun,
+  Moon,
+  Monitor
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import AppShell from '../components/AppShell';
+import { Sheet } from '../components/ui';
+import { useTheme } from '../context/ThemeContext';
 
 export default function Settings() {
   const { user, logout } = useAuth();
+  const { theme, resolvedTheme, setTheme } = useTheme();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,6 +30,7 @@ export default function Settings() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string>(''); // For confirmation input
   const [deleteError, setDeleteError] = useState<string | null>(null); // Scoped inline error for the delete flow
+  const [appearanceSheetOpen, setAppearanceSheetOpen] = useState(false);
 
   // Fetch user profile data
   useEffect(() => {
@@ -359,12 +366,12 @@ export default function Settings() {
             </button>
             <button
               type="button"
-              onClick={() => navigate('/appearance')}
+              onClick={() => setAppearanceSheetOpen(true)}
               className="w-full px-6 py-5 flex items-center justify-between hover:bg-surface-container-low transition-colors text-left group"
             >
               <div className="font-bold text-ink">Appearance</div>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-slate">Light</span>
+                <span className="text-sm text-slate capitalize">{theme === 'system' ? `System (${resolvedTheme})` : theme}</span>
                 <span className="material-symbols-outlined text-slate group-hover:translate-x-1 transition-transform">
                   ChevronRight
                 </span>
@@ -438,6 +445,50 @@ export default function Settings() {
           </div>
         </section>
       </div>
+
+      {/* Appearance Sheet */}
+      <Sheet
+        title="Appearance"
+        isOpen={appearanceSheetOpen}
+        onClose={() => setAppearanceSheetOpen(false)}
+      >
+        <div className="space-y-3">
+          {[
+            { value: 'light', label: 'Light', icon: Sun, description: 'Always use light mode' },
+            { value: 'dark', label: 'Dark', icon: Moon, description: 'Always use dark mode' },
+            { value: 'system', label: 'System', icon: Monitor, description: `Match system (${resolvedTheme})` },
+          ].map(({ value, label, icon: Icon, description }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => {
+                setTheme(value as 'light' | 'dark' | 'system');
+                setAppearanceSheetOpen(false);
+              }}
+              className={`w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-colors ${
+                theme === value
+                  ? 'border-primary bg-primary-soft'
+                  : 'border-border hover:bg-surface-container-low'
+              }`}
+            >
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                theme === value ? 'bg-primary text-on-primary' : 'bg-surface-container-low text-slate'
+              }`}>
+                <Icon className="h-5 w-5" />
+              </div>
+              <div className="flex-1 text-left">
+                <div className="font-bold text-ink">{label}</div>
+                <div className="text-sm text-slate">{description}</div>
+              </div>
+              {theme === value && (
+                <svg className="h-5 w-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              )}
+            </button>
+          ))}
+        </div>
+      </Sheet>
     </AppShell>
   );
 }
