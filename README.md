@@ -48,6 +48,7 @@ The app is in active development with core authentication and dashboard shell co
 - ✅ **Tooth Chart** - Visual grid showing each tooth's status (healthy, cavity, filling, etc.) with ability to add records per tooth
 - ✅ **Appointments & Reminders** - Schedule, view, and manage dental appointments with date/time selection and provider field
 - ✅ **Automated Reminders** - Hourly email reminders for upcoming appointments (using Resend, sends to account's registered email until domain verified)
+- ✅ **Settings & Data Export** - User settings page with PDF export functionality for complete health records including appointments and dental chart data
 - ☐ **Provider-Initiated Connection Requests** - 
    - Providers can request access to patient dental records via email lookup 
    - Rate-limited patient lookup to prevent enumeration attacks 

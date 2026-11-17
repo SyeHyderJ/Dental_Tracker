@@ -10,6 +10,7 @@ interface AuthContextType {
   register: (email: string, password: string) => Promise<{ user: User | null; session: Session | null }>;
   resend: (email: string) => Promise<void>;
   loading: boolean;
+  emailVerified: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -17,12 +18,20 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
 
   // Set up auth state listener
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (_event, session) => {
         setUser(session?.user ?? null);
+        if (session?.user) {
+          // Check if email is verified
+          const { data } = await supabase.auth.getUser();
+          setEmailVerified(data.user?.email_confirmed_at !== null);
+        } else {
+          setEmailVerified(false);
+        }
       }
     );
     return () => subscription.unsubscribe();
@@ -31,11 +40,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (email: string, password: string) => {
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       if (error) throw error;
+      if (data.user) {
+        setUser(data.user);
+        // Check email verification after login
+        const { data: userData } = await supabase.auth.getUser();
+        setEmailVerified(userData.user?.email_confirmed_at !== null);
+      }
     } catch (error) {
       throw error;
     } finally {
@@ -49,6 +64,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       setUser(null);
+      setEmailVerified(false);
     } catch (error) {
       throw error;
     } finally {
@@ -91,7 +107,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, register, resend, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, register, resend, loading, emailVerified }}>
       {children}
     </AuthContext.Provider>
   );
